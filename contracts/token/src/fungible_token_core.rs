@@ -106,6 +106,8 @@ impl FungibleTokenCore for Contract {
     fn ft_transfer(&mut self, receiver_id: ValidAccountId, amount: U128, memo: Option<String>) {
         assert_one_yocto();
         let sender_id = env::predecessor_account_id();
+        assert!(!self.is_shop(&sender_id), "Sender can NOT be a shop.");
+        assert!(!self.is_shop(receiver_id.as_ref()), "Receiver can NOT be a shop.");
         let amount = amount.into();
         self.internal_transfer(&sender_id, receiver_id.as_ref(), amount, memo);
     }
@@ -120,6 +122,8 @@ impl FungibleTokenCore for Contract {
     ) -> Promise {
         assert_one_yocto();
         let sender_id = env::predecessor_account_id();
+        assert!(!self.is_shop(&sender_id), "Sender can NOT be a shop.");
+        assert!(!self.is_shop(receiver_id.as_ref()), "Receiver can NOT be a shop.");
         let amount = amount.into();
         self.internal_transfer(&sender_id, receiver_id.as_ref(), amount, memo);
         // Initiating receiver's call and the callback

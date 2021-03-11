@@ -18,10 +18,11 @@ pub(crate) fn assert_self() {
 
 impl Contract {
     pub(crate) fn internal_deposit(&mut self, account_id: &AccountId, amount: Balance) {
+        self.try_register_user(account_id);
         let balance = self
             .accounts
             .get(&account_id)
-            .expect("The account is not registered");
+            .expect("Internal Error! The account is not registered");
         if let Some(new_balance) = balance.checked_add(amount) {
             self.accounts.insert(&account_id, &new_balance);
         } else {
@@ -36,6 +37,7 @@ impl Contract {
             .expect("The account is not registered");
         if let Some(new_balance) = balance.checked_sub(amount) {
             self.accounts.insert(&account_id, &new_balance);
+            self.try_unregister_user(account_id);
         } else {
             env::panic(b"The account doesn't have enough balance");
         }
@@ -59,5 +61,31 @@ impl Contract {
         if let Some(memo) = memo {
             env::log(format!("Memo: {}", memo).as_bytes());
         }
+    }
+
+    fn try_register_user(&mut self, user: &AccountId) {
+        if !self.accounts.contains_key(user) {
+            self.accounts.insert(user, &0);
+        }
+    }
+
+    fn try_unregister_user(&mut self, user: &AccountId) {
+        if let Some(balance) = self.accounts.get(user) {
+            if balance == 0 {
+                self.accounts.remove(user);
+            }
+        }
+    }
+
+    pub(crate) fn assert_owner(&self) {
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.owner_id,
+            "Can only be called by the owner"
+        );
+    }
+
+    pub(crate) fn is_shop(&self, account_id: &AccountId) -> bool {
+        self.shops.contains_key(account_id)
     }
 }

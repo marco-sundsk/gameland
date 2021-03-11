@@ -1,36 +1,66 @@
 /**
-* wNear NEP-141 Token contract
+* PlayToken contract abey NEP-141
 *
-* The aim of the contract is to enable the wrapping of the native NEAR token into a NEP-141 compatible token.
-* It supports methods `near_deposit` and `near_withdraw` that wraps and unwraps NEAR tokens.
-* They are effectively mint and burn underlying wNEAR tokens.
+* The aim of the contract is to enable an NEP-141 standard play token for gameland platform.
+* It supports methods `mint` and `burn` that mint and burn this token from and to NEAR.
+* The prices of mint and burn are different, so gameland got its profits.
 *
 * lib.rs is the main entry point.
 * fungible_token_core.rs implements NEP-146 standard
 * storage_manager.rs implements NEP-145 standard for allocating storage per account
 * fungible_token_metadata.rs implements NEP-148 standard for providing token-specific metadata.
-* w_near.rs contains interfaces for depositing and withdrawing
+* play_token.rs contains interfaces for depositing and withdrawing
 * internal.rs contains internal methods for fungible token.
 */
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::json_types::U128;
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
+use near_sdk::serde::{Deserialize, Serialize};
+use uint::construct_uint;
 
 pub use crate::fungible_token_core::*;
 pub use crate::fungible_token_metadata::*;
 use crate::internal::*;
 pub use crate::storage_manager::*;
-pub use crate::w_near::*;
+pub use crate::play_token::*;
 
 mod fungible_token_core;
 mod fungible_token_metadata;
 mod internal;
 mod storage_manager;
-mod w_near;
+mod play_token;
+
+construct_uint! {
+    /// 256-bit unsigned integer.
+    pub struct U256(4);
+}
+
+const PRICE_DEMONINATOR: u16 = 1000;
 
 #[global_allocator]
 static ALLOC: near_sdk::wee_alloc::WeeAlloc<'_> = near_sdk::wee_alloc::WeeAlloc::INIT;
+
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct FeeFraction {
+    pub numerator: u32,
+    pub denominator: u32,
+}
+
+impl FeeFraction {
+    pub fn assert_valid(&self) {
+        assert_ne!(self.denominator, 0, "Denominator must be a positive number");
+        assert!(
+            self.numerator <= self.denominator,
+            "The reward fee must be less or equal to 1"
+        );
+    }
+
+    pub fn multiply(&self, value: Balance) -> Balance {
+        (U256::from(self.numerator) * U256::from(value) / U256::from(self.denominator)).as_u128()
+    }
+}
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
@@ -43,6 +73,32 @@ pub struct Contract {
 
     /// The storage size in bytes for one account.
     pub account_storage_usage: StorageUsage,
+
+    ////////////////////below is special///////////////////////////////
+    
+    /// owner of this token
+    pub owner_id: AccountId,
+
+    pub owner_profit: Balance,
+
+    /// NEAR that used to mint token
+    pub total_collateral: Balance,
+
+    /// all tip ratios
+    pub owner_ratio_for_play: FeeFraction,
+    pub game_ratio_for_play: FeeFraction,
+    pub owner_ratio_for_win: FeeFraction,
+    pub game_ratio_for_win: FeeFraction,
+
+    /// price with 1000 as common denominator
+    pub mint_price: u16,
+    pub burn_ratio: FeeFraction,    
+
+    /// game contractID -> game onwerID
+    /// When user transfer to shop, consider xxx_ratio_for_play;
+    /// When shop transfer to user, consider xxx_ratio_for_win;
+    pub shops: LookupMap<AccountId, AccountId>,
+
 }
 
 impl Default for Contract {
@@ -54,12 +110,37 @@ impl Default for Contract {
 #[near_bindgen]
 impl Contract {
     #[init]
-    pub fn new() -> Self {
+    pub fn new(owner_id: AccountId,) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         let mut this = Self {
             accounts: LookupMap::new(b"a".to_vec()),
             total_supply: 0,
             account_storage_usage: 0,
+            owner_id,
+            owner_profit: 0,
+            total_collateral: 0,
+            owner_ratio_for_play: FeeFraction {
+                numerator: 5,
+                denominator: 1000,
+            },
+            game_ratio_for_play: FeeFraction {
+                numerator: 5,
+                denominator: 1000,
+            },
+            owner_ratio_for_win: FeeFraction {
+                numerator: 10,
+                denominator: 1000,
+            },
+            game_ratio_for_win: FeeFraction {
+                numerator: 10,
+                denominator: 1000,
+            },
+            mint_price: 100,
+            burn_ratio: FeeFraction {
+                numerator: 10,
+                denominator: 1000,
+            },
+            shops: LookupMap::new(b"s".to_vec()),
         };
         let initial_storage_usage = env::storage_usage();
         let tmp_account_id = unsafe { String::from_utf8_unchecked(vec![b'a'; 64]) };
