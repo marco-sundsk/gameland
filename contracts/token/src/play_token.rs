@@ -71,17 +71,39 @@ impl Contract {
     /// predecessor should be shop contract and the amount goes to it
     /// signer should be a user
     /// owner and shop-owner get fee from amount
-    pub fn insert_coin(&mut self, amount: U128) -> Promise {
-        // todo:
-        Promise::new(self.owner_id.clone())
+    pub fn insert_coin(&mut self, amount: U128) {
+
+        let caller = env::predecessor_account_id();
+        let user = env::signer_account_id();
+
+        assert!(!self.is_shop(&user), "Signer must be a user.");
+        let shop_owner = self.shops.get(&caller).expect("Predecessor must be a shop.");
+        
+        let amount: u128 = amount.into();
+        let shop_fee = self.game_ratio_for_play.multiply(amount);
+        let owner_fee = self.owner_ratio_for_play.multiply(amount);
+        let net_amount = amount - shop_fee - owner_fee;
+        self.internal_transfer(&user, &self.owner_id.clone(), owner_fee, Some(String::from("owner_fee")));
+        self.internal_transfer(&user, &shop_owner, shop_fee, Some(String::from("shop_fee")));
+        self.internal_transfer(&user, &caller, net_amount, Some(String::from("insert_coin")));
     }
 
     /// game contract call this method to send reward to winner
     /// predecessor should be game contract and the reward comes from it
     /// owner and shop-owner get fee from reward
-    pub fn reward_coin(&mut self, receiver_id: AccountId, amount: U128) -> Promise {
-        // todo:
-        Promise::new(self.owner_id.clone())
+    pub fn reward_coin(&mut self, receiver_id: AccountId, amount: U128) {
+
+        let caller = env::predecessor_account_id();
+        let shop_owner = self.shops.get(&caller).expect("Predecessor must be a shop.");
+        
+        let amount: u128 = amount.into();
+
+        let shop_fee = self.game_ratio_for_win.multiply(amount);
+        let owner_fee = self.owner_ratio_for_win.multiply(amount);
+        let net_amount = amount - shop_fee - owner_fee;
+        self.internal_transfer(&receiver_id, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
+        self.internal_transfer(&receiver_id, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        self.internal_transfer(&receiver_id, &caller, net_amount, Some(String::from("reward_coin")));
     }
 
     pub fn register_shop(&mut self, shop_id: AccountId, shop_owner_id: AccountId) {
