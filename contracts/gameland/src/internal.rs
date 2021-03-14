@@ -26,7 +26,11 @@ impl Contract {
     }
 
     pub(crate) fn internal_get_shop(&self, shop_id: &AccountId) -> RegForm {
-        self.shops.get(shop_id).expect("This shop does NOT exist.")
+        self.shops.get(shop_id).expect("This shop does NOT exist in running list.")
+    }
+
+    pub(crate) fn internal_get_register(&self, shop_id: &AccountId) -> RegForm {
+        self.registers.get(shop_id).expect("This shop does NOT exist in reg/unreg list.")
     }
 
 }

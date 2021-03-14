@@ -40,7 +40,7 @@ pub struct Metadata {
     description: String,
 }
 
-#[derive(BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize, Clone)]
 pub struct RegForm {
     pub shop_id: AccountId,
     pub owner_id: AccountId,
