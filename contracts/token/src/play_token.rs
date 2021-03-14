@@ -1,4 +1,14 @@
 use crate::*;
+use near_sdk::{ext_contract, Gas};
+
+const GAS_FOR_BASIC: Gas = 5_000_000_000_000;
+const NO_DEPOSIT: Balance = 0;
+
+#[ext_contract(ext_game)]
+trait Game {
+    fn gl_on_sponsor(&mut self, amount: U128) -> String;
+    fn gl_on_play(&mut self, gross_amount: U128, net_amount: U128, op: String) -> String;
+}
 
 #[near_bindgen]
 impl Contract {
@@ -67,11 +77,30 @@ impl Contract {
         Promise::new(self.owner_id.clone()).transfer(transfer_amount)
     }
 
+    /// shop contract call this method to sponsor shop reward pool
+    /// predecessor should be shop contract
+    /// signer should be the sponsor
+    pub fn sponsor_shop(&mut self, amount: U128) -> Promise {
+        let shop_id = env::predecessor_account_id();
+        let sponsor = env::signer_account_id();
+        let amount: u128 = amount.into();
+        assert!(self.is_shop(&shop_id), "Must be called by shop/game contract.");
+
+        self.internal_transfer(&sponsor, &shop_id, amount, Some(String::from("sponsor")));
+
+        ext_game::gl_on_sponsor(
+            amount.into(),
+            &shop_id,
+            NO_DEPOSIT,
+            env::prepaid_gas() - GAS_FOR_BASIC,
+        )
+    }
+
     /// shop contract call this method to let a user play one round
     /// predecessor should be shop contract and the amount goes to it
     /// signer should be a user
     /// owner and shop-owner get fee from amount
-    pub fn insert_coin(&mut self, amount: U128) {
+    pub fn insert_coin(&mut self, amount: U128, op: String) -> Promise {
 
         let caller = env::predecessor_account_id();
         let user = env::signer_account_id();
@@ -86,6 +115,15 @@ impl Contract {
         self.internal_transfer(&user, &self.owner_id.clone(), owner_fee, Some(String::from("owner_fee")));
         self.internal_transfer(&user, &shop_owner, shop_fee, Some(String::from("shop_fee")));
         self.internal_transfer(&user, &caller, net_amount, Some(String::from("insert_coin")));
+
+        ext_game::gl_on_play(
+            amount.into(),
+            net_amount.into(),
+            op,
+            &caller,
+            NO_DEPOSIT,
+            env::prepaid_gas() - GAS_FOR_BASIC,
+        )
     }
 
     /// game contract call this method to send reward to winner

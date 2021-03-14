@@ -16,9 +16,12 @@ use uint::construct_uint;
 
 pub use crate::gl_metadata::*;
 pub use crate::gl_core::*;
+use crate::internal::*;
 
 mod gl_metadata;
 mod gl_core;
+mod internal;
+
 
 construct_uint! {
     /// 256-bit unsigned integer.
@@ -27,27 +30,6 @@ construct_uint! {
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
-#[serde(crate = "near_sdk::serde")]
-pub struct RewardFeeFraction {
-    pub numerator: u32,
-    pub denominator: u32,
-}
-
-impl RewardFeeFraction {
-    pub fn assert_valid(&self) {
-        assert_ne!(self.denominator, 0, "Denominator must be a positive number");
-        assert!(
-            self.numerator <= self.denominator,
-            "The reward fee must be less or equal to 1"
-        );
-    }
-
-    pub fn multiply(&self, value: Balance) -> Balance {
-        (U256::from(self.numerator) * U256::from(value) / U256::from(self.denominator)).as_u128()
-    }
-}
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct WinnerInfo {
@@ -71,7 +53,6 @@ pub struct HumanReadableWinnerInfo {
 pub struct HumanReadableContractInfo {
     pub owner: AccountId,
     pub jack_pod: U128,
-    pub owner_pod: U128,
     pub dice_number: u8,
     pub rolling_fee: U128,
 }
@@ -95,12 +76,9 @@ pub struct HumanReadableDiceResult {
 pub struct Contract {
     pub owner_id: AccountId,
     pub dice_number: u8,
-    pub rolling_fee: Balance,  // how many NEAR needed to roll once.
+    pub rolling_fee: Balance,  // how many token needed to roll once.
     pub jack_pod: Balance,  // half of them would be show to user as jack_pod amount
-    pub owner_pod: Balance,  // incoming of the contract, can be withdraw by owner
-    pub reward_fee_fraction: RewardFeeFraction,
     pub win_history: Vector<WinnerInfo>,
-    pub accounts: LookupMap<AccountId, Balance>,  // record user deposit to buy dice
 }
 
 impl Default for Contract {
@@ -117,10 +95,8 @@ impl Contract {
         owner_id: AccountId,
         dice_number: u8,
         rolling_fee: U128,
-        reward_fee_fraction: RewardFeeFraction,
     ) -> Self {
         assert!(!env::state_exists(), "Already initialized");
-        reward_fee_fraction.assert_valid();
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
             "The owner account ID is invalid"
@@ -131,10 +107,7 @@ impl Contract {
             dice_number,
             rolling_fee: rolling_fee.into(),
             jack_pod: 0_u128,
-            owner_pod: 0_u128,
-            reward_fee_fraction,
             win_history: Vector::new(b"w".to_vec()),
-            accounts: LookupMap::new(b"a".to_vec()),
         }
     }
 
@@ -149,35 +122,7 @@ impl Contract {
             "Can only be called by the owner"
         );
     }
-    /// 
-    pub fn withdraw_ownerpod(&mut self, amount: U128) {
-        self.assert_owner();
-        let amount: Balance = amount.into();
-        assert!(
-            self.owner_pod >= amount,
-            "The owner pod has insurficent funds"
-        );
-
-        let account_id = env::predecessor_account_id();
-        self.owner_pod -= amount;
-        Promise::new(account_id).transfer(amount);
-    }
-
-    #[payable]
-    pub fn deposit_jackpod(&mut self) {
-        self.assert_owner();
-        let amount = env::attached_deposit();
-        self.jack_pod += amount;
-    }
-
-    /// Owner's method.
-    /// Updates current reward fee fraction to the new given fraction.
-    pub fn update_reward_fee_fraction(&mut self, reward_fee_fraction: RewardFeeFraction) {
-        self.assert_owner();
-        reward_fee_fraction.assert_valid();
-        self.reward_fee_fraction = reward_fee_fraction;
-    }
-
+    
     pub fn update_dice_number(&mut self, dice_number: u8) {
         self.assert_owner();
         self.dice_number = dice_number;
@@ -186,113 +131,6 @@ impl Contract {
     pub fn update_rolling_fee(&mut self, rolling_fee: U128) {
         self.assert_owner();
         self.rolling_fee = rolling_fee.into();
-    }
-
-    //***********************/
-    // rolling functions
-    //***********************/
-
-    #[payable]
-    pub fn buy_dice(&mut self) {
-        // check called by real user NOT from other contracts
-        let account_id = env::predecessor_account_id();
-        assert_eq!(
-            account_id.clone(),
-            env::signer_account_id(),
-            "This method must be called directly from user."
-        );
-        // check user attached enough rolling fee to buy at least one dice
-        let amount = env::attached_deposit();
-        assert!(
-            amount >= self.rolling_fee,
-            format!("You must deposit more than {}", self.rolling_fee)
-        );
-    
-        let buy_dice_count = amount / self.rolling_fee;
-        let leftover = amount - buy_dice_count * self.rolling_fee;
-
-        let old_value = self.accounts.get(&account_id).unwrap_or(0);
-        self.accounts.insert(&account_id, &(old_value + buy_dice_count * self.rolling_fee));
-
-        // change refund
-        if leftover > 0 {
-            Promise::new(account_id).transfer(leftover);
-        }
-    }
-
-
-    /// rolling dice
-    /// check the deposit is larger than rolling_fee NEAR, and return leftover back to caller at end of call,
-    /// add rolling_fee NEAR to jackpod and get random number between [1, self.dice_number * 6],
-    /// if identical to target, modify jackpod amount and transfer half of jackpod to caller (within a tip to the owner_pod)
-    pub fn roll_dice(&mut self, target: u8) -> HumanReadableDiceResult {
-
-        // check called by real user NOT from other contracts
-        let account_id = env::predecessor_account_id();
-        assert_eq!(
-            account_id.clone(),
-            env::signer_account_id(),
-            "This method must be called directly from user."
-        );
-
-        // check user has at least one dice remain
-        let balance = self.accounts.get(&account_id).unwrap_or(0);
-        assert!(
-            balance / self.rolling_fee >= 1,
-            "You must at least have one dice to play"
-        );
-
-        // update account dice
-        let leftover = balance - self.rolling_fee;
-        if leftover == 0 {
-            self.accounts.remove(&account_id);
-        } else {
-            self.accounts.insert(&account_id, &leftover);
-        }
-        // always update jack_pod before rolling dice
-        self.jack_pod += self.rolling_fee;
-
-        // rolling dice here
-        let random_u8: u8 = env::random_seed().iter().fold(0_u8, |acc, x| acc.wrapping_add(*x));
-        let dice_point = self.dice_number as u16 * 6_u16 * random_u8 as u16 / 0x100_u16 + 1;
-
-        let mut result = HumanReadableDiceResult {
-            user: account_id.clone(),
-            user_guess: target,
-            dice_point: dice_point as u8,
-            reward_amount: 0.into(),  // if win, need update
-            jackpod_left: self.jack_pod.into(),  // if win, need update
-            height: env::block_index().into(),
-            ts: env::block_timestamp().into(),
-        };
-        
-        // let's see how lucky caller is this time
-        if target == dice_point as u8 {  // Wow, he wins
-            // figure out gross reward and update jack pod
-            let gross_reward = self.jack_pod / 2;
-            self.jack_pod -= gross_reward;
-            // split gross to net and owner fee
-            let owners_fee = self.reward_fee_fraction.multiply(gross_reward);
-            result.reward_amount = (gross_reward - owners_fee).into();
-            result.jackpod_left = self.jack_pod.into();
-            // update owner pod 
-            self.owner_pod += owners_fee;
-            // records this winning
-            self.win_history.push(&WinnerInfo {
-                user: account_id.clone(),
-                amount: gross_reward - owners_fee,
-                height: env::block_index(),
-                ts: env::block_timestamp(),
-            });
-        }
-        
-        result
-    }
-
-    pub fn set_greeting(&mut self, message: String) {
-        let account_id = env::signer_account_id();
-        // Use env::log to record logs permanently to the blockchain!
-        env::log(format!("Saving greeting '{}' for account '{}'", message, account_id,).as_bytes());
     }
 
     //***********************/
@@ -321,26 +159,11 @@ impl Contract {
         HumanReadableContractInfo {
             owner: self.owner_id.clone(),
             jack_pod: self.jack_pod.into(),
-            owner_pod: self.owner_pod.into(),
             dice_number: self.dice_number,
             rolling_fee: self.rolling_fee.into(),
         }
     }
 
-    /// Returns the current reward fee as a fraction.
-    pub fn get_reward_fee_fraction(&self) -> RewardFeeFraction {
-        self.reward_fee_fraction.clone()
-    }
-
-    /// return user's available dice count
-    pub fn get_account_dice_count(&self, account_id: String) -> u8 {
-        let balance = self.accounts.get(&account_id.into()).unwrap_or(0);
-        (balance / self.rolling_fee) as u8
-    }
-
-    pub fn get_greeting(&self, account_id: String) -> &str {
-        "Hello, this method has obsolete"
-    }
 }
 
 /*
@@ -387,11 +210,6 @@ mod tests {
         let context = get_context(vec![], false);
         testing_env!(context);
         let mut contract = Contract::default();
-        contract.set_greeting("howdy".to_string());
-        assert_eq!(
-            "howdy".to_string(),
-            contract.get_greeting("bob_near".to_string())
-        );
     }
 
     #[test]
@@ -400,9 +218,5 @@ mod tests {
         testing_env!(context);
         let contract = Contract::default();
         // this test did not call set_greeting so should return the default "Hello" greeting
-        assert_eq!(
-            "Hello".to_string(),
-            contract.get_greeting("francis.near".to_string())
-        );
     }
 }
