@@ -12,6 +12,29 @@ trait Game {
 
 #[near_bindgen]
 impl Contract {
+
+    //****************************
+    // owner functions
+    //****************************
+
+    pub fn change_owner(&mut self, new_owner_id: AccountId) {
+        self.assert_owner();
+        // ensure this account exists
+        Promise::new(new_owner_id.clone()).transfer(1);
+        self.owner_id = new_owner_id;
+    }
+
+    pub fn change_sudoer(&mut self, new_sudoer_id: AccountId) {
+        self.assert_owner();
+        // ensure this account exists
+        Promise::new(new_sudoer_id.clone()).transfer(1);
+        self.sudoer_id = new_sudoer_id;
+    }
+
+    //****************************
+    // sudoers functions, owner and sudoer can invoke
+    //****************************
+
     /// Mint token to the signer account.
     /// Features:
     /// * The signer account would be auto-register if needed.
@@ -19,7 +42,7 @@ impl Contract {
     /// * Requires called by GameLand contract (the owner)
     #[payable]
     pub fn mint_playtoken(&mut self) {
-        self.assert_owner();
+        self.assert_sudoers();
         let amount = env::attached_deposit();
         assert!(amount > 0, "Requires positive attached deposit");
         let account_id = env::signer_account_id();
@@ -27,7 +50,7 @@ impl Contract {
         // figure out actual mint amount
         let token_mint = amount / self.mint_price as u128 * PRICE_DEMONINATOR as u128;
         let mint_fee = self.burn_ratio.multiply(amount);
-        self.owner_profit += mint_fee;
+        self.sudoer_profit += mint_fee;
         self.total_collateral += amount - mint_fee;
         self.total_supply += token_mint;
     
@@ -43,7 +66,7 @@ impl Contract {
     /// * If remaining balance lower than ACCOUNT_KEEPALIVE_BALANCE, the account would be removed
     /// * Requires called by owner
     pub fn burn_playtoken(&mut self, amount: U128) -> Promise {
-        self.assert_owner();
+        self.assert_sudoers();
         let account_id = env::signer_account_id();
         let amount = amount.into();
         
@@ -61,21 +84,47 @@ impl Contract {
         Promise::new(account_id).transfer(net_collateral)
     }
 
-    pub fn withdraw_owner_profit(&mut self, amount: U128) -> Promise {
-        self.assert_owner();
+
+    //****************************
+    // sudoer functions, sudoer can invoke
+    //****************************
+
+    /// withdraw all profit when amount is zero 
+    pub fn withdraw_sudoer_profit(&mut self, amount: U128) -> Promise {
+        self.assert_sudoer();
         let amount: u128 = amount.into();
-        assert!(amount < self.owner_profit, "Insurfficent profit for withdraw.");
+        assert!(amount < self.sudoer_profit, "Insurfficent profit for withdraw.");
         let transfer_amount: u128;
         if amount > 0 {
             transfer_amount = amount;
-            self.owner_profit -= amount;
+            self.sudoer_profit -= amount;
         } else {
-            transfer_amount = self.owner_profit;
-            self.owner_profit = 0;      
+            transfer_amount = self.sudoer_profit;
+            self.sudoer_profit = 0;      
         }
         env::log(format!("Withdraw owner profit {} ", transfer_amount).as_bytes());
         Promise::new(self.owner_id.clone()).transfer(transfer_amount)
     }
+
+    pub fn register_shop(&mut self, shop_id: AccountId, shop_owner_id: AccountId) {
+        self.assert_sudoer();
+        if !self.shops.contains_key(&shop_id) {
+            self.shop_num += 1;
+        }
+        self.shops.insert(&shop_id, &shop_owner_id);
+    }
+
+    pub fn unregister_shop(&mut self, shop_id: AccountId) {
+        self.assert_sudoer();
+        if self.shops.contains_key(&shop_id) {
+            self.shops.remove(&shop_id);
+            self.shop_num -= 1;
+        }
+    }
+
+    //****************************
+    // common changable functions
+    //****************************
 
     /// shop contract call this method to sponsor shop reward pool
     /// predecessor should be shop contract
@@ -144,20 +193,4 @@ impl Contract {
         self.internal_transfer(&receiver_id, &caller, net_amount, Some(String::from("reward_coin")));
     }
 
-    pub fn register_shop(&mut self, shop_id: AccountId, shop_owner_id: AccountId) {
-        self.assert_owner();
-        if !self.shops.contains_key(&shop_id) {
-            self.shop_num += 1;
-        }
-        self.shops.insert(&shop_id, &shop_owner_id);
-    }
-
-    pub fn unregister_shop(&mut self, shop_id: AccountId) {
-        self.assert_owner();
-        if self.shops.contains_key(&shop_id) {
-            self.shops.remove(&shop_id);
-            self.shop_num -= 1;
-        }
-        
-    }
 }

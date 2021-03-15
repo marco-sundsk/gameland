@@ -90,6 +90,21 @@ impl Contract {
         );
     }
 
+    pub(crate) fn assert_sudoer(&self) {
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.sudoer_id,
+            "Can only be called by the owner"
+        );
+    }
+
+    pub(crate) fn assert_sudoers(&self) {
+        if env::predecessor_account_id() != self.owner_id 
+        && env::predecessor_account_id() != self.sudoer_id {
+            env::panic(b"only sudoers are allowed!");
+        }
+    }
+
     pub(crate) fn is_shop(&self, account_id: &AccountId) -> bool {
         self.shops.contains_key(account_id)
     }

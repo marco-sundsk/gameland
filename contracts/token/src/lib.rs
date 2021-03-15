@@ -43,6 +43,7 @@ static ALLOC: near_sdk::wee_alloc::WeeAlloc<'_> = near_sdk::wee_alloc::WeeAlloc:
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadableContractInfo {
     pub owner: AccountId,
+    pub sudoer: AccountId,
     pub account_num: U64,
     pub shop_num: U64,
     pub owner_profit: U128,
@@ -83,8 +84,10 @@ pub struct Contract {
     
     /// owner of this token
     pub owner_id: AccountId,
+    /// sudoer is gameland contract
+    pub sudoer_id: AccountId,
 
-    pub owner_profit: Balance,
+    pub sudoer_profit: Balance,
 
     /// NEAR that used to mint token
     pub total_collateral: Balance,
@@ -116,14 +119,15 @@ impl Default for Contract {
 #[near_bindgen]
 impl Contract {
     #[init]
-    pub fn new(owner_id: AccountId,) -> Self {
+    pub fn new(owner_id: AccountId, sudoer_id: AccountId) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         Self {
             accounts: LookupMap::new(b"a".to_vec()),
             account_num: 0,
             total_supply: 0,
             owner_id,
-            owner_profit: 0,
+            sudoer_id,
+            sudoer_profit: 0,
             total_collateral: 0,
             owner_ratio_for_play: FeeFraction {
                 numerator: 5,
@@ -158,9 +162,10 @@ impl Contract {
     pub fn get_contract_info(&self) -> HumanReadableContractInfo {
         HumanReadableContractInfo {
             owner: self.owner_id.clone(),
+            sudoer: self.sudoer_id.clone(),
             account_num: self.account_num.into(),
             shop_num: self.shop_num.into(),
-            owner_profit: self.owner_profit.into(),
+            owner_profit: self.sudoer_profit.into(),
         }
     }
 
