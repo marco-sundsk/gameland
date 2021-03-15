@@ -3,5 +3,5 @@ res/*.wasm
 target
 **/target/
 **/pkg/
-
+**/*.txt
 .cargo/
