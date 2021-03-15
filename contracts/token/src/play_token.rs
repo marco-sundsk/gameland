@@ -54,7 +54,7 @@ impl Contract {
         self.total_collateral += amount - mint_fee;
         self.total_supply += token_mint;
     
-        self.internal_deposit(&account_id, amount);
+        self.internal_deposit(&account_id, token_mint);
 
         env::log(format!("Mint {} token to {} cost {} NEAR", token_mint, account_id, amount).as_bytes());
     }
@@ -82,6 +82,31 @@ impl Contract {
         env::log(format!("Burn {} token get {} NEAR back from {}", amount, net_collateral, account_id).as_bytes());
         // Transfer NEAR
         Promise::new(account_id).transfer(net_collateral)
+    }
+
+    pub fn update_fee_ratio(&mut self, category: String, ratio: FeeFraction) -> String {
+        self.assert_sudoers();
+
+        let mut ret = "OK";
+        if category == "shop_fee_play" {
+            self.game_ratio_for_play = ratio;
+        } else if category == "shop_fee_win" {
+            self.game_ratio_for_win = ratio;
+        } else if category == "sudoer_fee_play" {
+            self.owner_ratio_for_play = ratio;
+        } else if category == "sudoer_fee_win" {
+            self.owner_ratio_for_win = ratio;
+        } else if category == "burn_ratio" {
+            self.burn_ratio = ratio;
+        } else {
+            ret = "Fail";
+        }
+        String::from(ret)
+    }
+
+    pub fn update_mint_prcie(&mut self, mint_price: u16) {
+        self.assert_sudoers();
+        self.mint_price = mint_price;
     }
 
 

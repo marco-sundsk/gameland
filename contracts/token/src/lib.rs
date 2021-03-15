@@ -44,9 +44,17 @@ static ALLOC: near_sdk::wee_alloc::WeeAlloc<'_> = near_sdk::wee_alloc::WeeAlloc:
 pub struct HumanReadableContractInfo {
     pub owner: AccountId,
     pub sudoer: AccountId,
+    pub total_supply: U128,
+    pub total_collateral: U128,
     pub account_num: U64,
     pub shop_num: U64,
-    pub owner_profit: U128,
+    pub sudoer_profit: U128,
+    pub sudoer_fee_play: FeeFraction,
+    pub sudoer_fee_win: FeeFraction,
+    pub shop_fee_play: FeeFraction,
+    pub shop_fee_win: FeeFraction,
+    pub mint_price: u16,
+    pub burn_ratio: FeeFraction,
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
@@ -155,17 +163,25 @@ impl Contract {
         }
     }
 
-    pub fn get_balance(&self, account_id: AccountId) -> Balance {
-        self.accounts.get(&account_id).unwrap_or(0)
+    pub fn get_balance(&self, account_id: AccountId) -> U128 {
+        self.accounts.get(&account_id).unwrap_or(0).into()
     }
 
     pub fn get_contract_info(&self) -> HumanReadableContractInfo {
         HumanReadableContractInfo {
             owner: self.owner_id.clone(),
             sudoer: self.sudoer_id.clone(),
+            total_supply: self.total_supply.into(),
+            total_collateral: self.total_collateral.into(),
             account_num: self.account_num.into(),
             shop_num: self.shop_num.into(),
-            owner_profit: self.sudoer_profit.into(),
+            sudoer_profit: self.sudoer_profit.into(),
+            sudoer_fee_play: self.owner_ratio_for_play.clone(),
+            sudoer_fee_win: self.owner_ratio_for_win.clone(),
+            shop_fee_play: self.game_ratio_for_play.clone(),
+            shop_fee_win: self.game_ratio_for_win.clone(),
+            mint_price: self.mint_price,
+            burn_ratio: self.burn_ratio.clone(),
         }
     }
 
