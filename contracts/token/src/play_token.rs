@@ -13,10 +13,10 @@ trait Game {
 #[near_bindgen]
 impl Contract {
     /// Mint token to the signer account.
-    /// Requirements:
-    /// * The signer account should be registered.
+    /// Features:
+    /// * The signer account would be auto-register if needed.
     /// * Requires positive attached deposit.
-    /// * Requires called by owner
+    /// * Requires called by GameLand contract (the owner)
     #[payable]
     pub fn mint_playtoken(&mut self) {
         self.assert_owner();
@@ -38,9 +38,9 @@ impl Contract {
 
     /// Burn token and get NEAR back to the signer account.
     /// Requirements:
-    /// * The signer account should be registered.
     /// * `amount` must be a positive integer.
     /// * The signer account should have at least the `amount` of tokens.
+    /// * If remaining balance lower than ACCOUNT_KEEPALIVE_BALANCE, the account would be removed
     /// * Requires called by owner
     pub fn burn_playtoken(&mut self, amount: U128) -> Promise {
         self.assert_owner();
@@ -146,11 +146,18 @@ impl Contract {
 
     pub fn register_shop(&mut self, shop_id: AccountId, shop_owner_id: AccountId) {
         self.assert_owner();
+        if !self.shops.contains_key(&shop_id) {
+            self.shop_num += 1;
+        }
         self.shops.insert(&shop_id, &shop_owner_id);
     }
 
     pub fn unregister_shop(&mut self, shop_id: AccountId) {
         self.assert_owner();
-        self.shops.remove(&shop_id);
+        if self.shops.contains_key(&shop_id) {
+            self.shops.remove(&shop_id);
+            self.shop_num -= 1;
+        }
+        
     }
 }

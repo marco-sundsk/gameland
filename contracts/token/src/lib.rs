@@ -14,21 +14,19 @@
 */
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
-use near_sdk::json_types::U128;
-use near_sdk::{env, near_bindgen, AccountId, Balance, Promise, StorageUsage};
+use near_sdk::json_types::{U128, U64};
+use near_sdk::{env, near_bindgen, AccountId, Balance, Promise};
 use near_sdk::serde::{Deserialize, Serialize};
 use uint::construct_uint;
 
 pub use crate::fungible_token_core::*;
 pub use crate::fungible_token_metadata::*;
 use crate::internal::*;
-pub use crate::storage_manager::*;
 pub use crate::play_token::*;
 
 mod fungible_token_core;
 mod fungible_token_metadata;
 mod internal;
-mod storage_manager;
 mod play_token;
 
 construct_uint! {
@@ -40,6 +38,15 @@ const PRICE_DEMONINATOR: u16 = 1000;
 
 #[global_allocator]
 static ALLOC: near_sdk::wee_alloc::WeeAlloc<'_> = near_sdk::wee_alloc::WeeAlloc::INIT;
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct HumanReadableContractInfo {
+    pub owner: AccountId,
+    pub account_num: U64,
+    pub shop_num: U64,
+    pub owner_profit: U128,
+}
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
@@ -67,12 +74,10 @@ impl FeeFraction {
 pub struct Contract {
     /// AccountID -> Account balance.
     pub accounts: LookupMap<AccountId, Balance>,
+    pub account_num: u64,
 
     /// Total supply of the all token.
     pub total_supply: Balance,
-
-    /// The storage size in bytes for one account.
-    pub account_storage_usage: StorageUsage,
 
     ////////////////////below is special///////////////////////////////
     
@@ -98,6 +103,7 @@ pub struct Contract {
     /// When user transfer to shop, consider xxx_ratio_for_play;
     /// When shop transfer to user, consider xxx_ratio_for_win;
     pub shops: LookupMap<AccountId, AccountId>,
+    pub shop_num: u64,
 
 }
 
@@ -112,10 +118,10 @@ impl Contract {
     #[init]
     pub fn new(owner_id: AccountId,) -> Self {
         assert!(!env::state_exists(), "Already initialized");
-        let mut this = Self {
+        Self {
             accounts: LookupMap::new(b"a".to_vec()),
+            account_num: 0,
             total_supply: 0,
-            account_storage_usage: 0,
             owner_id,
             owner_profit: 0,
             total_collateral: 0,
@@ -141,14 +147,23 @@ impl Contract {
                 denominator: 1000,
             },
             shops: LookupMap::new(b"s".to_vec()),
-        };
-        let initial_storage_usage = env::storage_usage();
-        let tmp_account_id = unsafe { String::from_utf8_unchecked(vec![b'a'; 64]) };
-        this.accounts.insert(&tmp_account_id, &0u128);
-        this.account_storage_usage = env::storage_usage() - initial_storage_usage;
-        this.accounts.remove(&tmp_account_id);
-        this
+            shop_num: 0,
+        }
     }
+
+    pub fn get_balance(&self, account_id: AccountId) -> Balance {
+        self.accounts.get(&account_id).unwrap_or(0)
+    }
+
+    pub fn get_contract_info(&self) -> HumanReadableContractInfo {
+        HumanReadableContractInfo {
+            owner: self.owner_id.clone(),
+            account_num: self.account_num.into(),
+            shop_num: self.shop_num.into(),
+            owner_profit: self.owner_profit.into(),
+        }
+    }
+
 }
 
 #[cfg(not(target_arch = "wasm32"))]

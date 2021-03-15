@@ -20,10 +20,10 @@ impl FungibleTokenMetadataProvider for Contract {
     fn ft_metadata() -> FungibleTokenMetadata {
         FungibleTokenMetadata {
             version: String::from("0.1.0"),
-            name: String::from("Wrapped NEAR fungible token"),
-            symbol: String::from("wNEAR"),
+            name: String::from("Buildlinks Play Token"),
+            symbol: String::from("BPT"),
             reference: String::from(
-                "https://github.com/near/core-contracts/tree/master/w-near-141",
+                "https://github.com/marco-sundsk/gameland/blob/main/contracts/token/",
             ),
             decimals: 24,
         }

@@ -1,5 +1,7 @@
 use crate::*;
 
+const ACCOUNT_KEEPALIVE_BALANCE: Balance = 1_000_000_000_000_000_000_000;
+
 pub(crate) fn assert_one_yocto() {
     assert_eq!(
         env::attached_deposit(),
@@ -66,13 +68,16 @@ impl Contract {
     fn try_register_user(&mut self, user: &AccountId) {
         if !self.accounts.contains_key(user) {
             self.accounts.insert(user, &0);
+            self.account_num += 1;
         }
     }
 
     fn try_unregister_user(&mut self, user: &AccountId) {
         if let Some(balance) = self.accounts.get(user) {
-            if balance == 0 {
+            if balance < ACCOUNT_KEEPALIVE_BALANCE {
                 self.accounts.remove(user);
+                self.account_num -= 1;
+                self.total_supply -= balance;
             }
         }
     }
