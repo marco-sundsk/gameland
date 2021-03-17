@@ -9,24 +9,32 @@ In GAMELAND, we have several types of contracts:
 ---
 Each contract has been successfully deployed and init correctly. The init processes are like:
 ```shell
-take positions
+# init gamecoin
+near call playtoken.testnet new '{"owner_id": "playtoken_owner.testnet", "sudoer_id": "gameland.testnet"}' --account_id=playtoken.testnet
+# init platform
+near call gameland.testnet new '{"owner_id": "gameland_owner.testnet"}' --account_id=gameland.testnet
+# init game shop
+near call neardice.testnet new '{"owner_id": "neardice_owner.testnet", "dice_number": 1, "rolling_fee": "1000000000000000000000000"}' --account_id=neardice.testnet
 ```
+
 
 ### buy & sell gamecoin
 ---
 Platform is the only place that you can buy and/or sell gamecoins. Behind these buy and sell actions, it is actually the platform that mints and burns gamecoins for you.
 ```shell
-take positions
+near call gameland.testnet buy_playtoken '' --account_id=player01.testnet --amount=1
+
+near call gameland.testnet sell_playtoken '{"amount": "6000000000000000000000000"}' --account_id=player01.testnet
 ```
 
 You can check balance of anyone:
 ```shell
-take positions
+near view playtoken.testnet ft_balance_of '{"account_id": "player01.testnet"}'
 ```
 
 as well as the total supply:
 ```shell
-take positions
+near view playtoken.testnet ft_total_supply ''
 ```
 
 ### register games
@@ -42,22 +50,22 @@ Frist, The game owner fills out register form
 
 and submit like this:
 ```shell
-take positions
+near call gameland.testnet register_shop '{"reg_form": {"flag": 1, "shop_id": "neardice.testnet", "owner_id": "neardice_owner.testnet", "refs": "https://github.com/marco-sundsk/gameland/", "height": "0", "ts": "0", "status": 0}}' --account_id=neardice_onwer.testnet
 ```
 
 Then, the platform governance committee will collect all registers time to time:
 ```shell
-take positions
+near view gameland.testnet list_registers '{"from_index": 0, "limit": 100}'
 ```
 
 After carefully evaluation, the committee would make a pass to some register:
 ```shell
-take positions
+near call gameland.testnet resovle_register '{"shop_id": "neardice.testnet", "pass": true, "new_status": 2}' --account_id=gameland_owner.testnet --gas=20000000000000
 ```
 
 The last thing before a game shop can run publicly, may be to prepare initial reward pool of the game. That can be down through a sponsor action to a shop:
 ```shell
-take positions
+near call gameland.testnet sponsor '{"shop_id": "neardice.testnet", "amount": "2000000000000000000000000"}' --account_id=player01.testnet --gas=40000000000000
 ```
 *note: The sponsor action may be required during register proccess*
 
@@ -65,10 +73,12 @@ take positions
 ---
 User can learn information of a game in these ways:
 ```shell
-take positions
+near view neardice.testnet gl_metadata ''
+near view neardice.testnet gl_pub_state ''
+near view neardice.testnet gl_user_state '{"user_id": "player01.testnet"}'
 ```
 
 And then play like this:
 ```shell
-take positions
+near call gameland.testnet play '{"shop_id": "neardice.testnet", "amount": "1000000000000000000000000", "op": "1"}' --account_id=player01.testnet --gas=60000000000000
 ```

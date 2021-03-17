@@ -8,7 +8,7 @@ const NO_DEPOSIT: Balance = 0;
 
 #[ext_contract(ext_game)]
 trait Game {
-    fn gl_sponser(&mut self, amount: U128) -> Promise;
+    fn gl_sponsor(&mut self, amount: U128) -> Promise;
     fn gl_play(&mut self, amount: U128, op: String) -> Promise;
     fn gl_settle(&mut self, op: String) -> String;
 }
@@ -23,9 +23,9 @@ trait Token {
 #[near_bindgen]
 impl Contract {
 
-    pub fn sponser(&mut self, shop_id: AccountId, amount: U128) -> Promise {
+    pub fn sponsor(&mut self, shop_id: AccountId, amount: U128) -> Promise {
         let shop_form = self.internal_get_shop(&shop_id);
-        ext_game::gl_sponser(
+        ext_game::gl_sponsor(
             amount,
             &shop_form.shop_id,
             NO_DEPOSIT,
