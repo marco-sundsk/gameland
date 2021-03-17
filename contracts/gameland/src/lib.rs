@@ -150,7 +150,7 @@ impl Contract {
     pub fn list_registers(&self, from_index: u64, limit: u64) -> Vec<HumanReadableRegForm> {
         let keys = self.registers.keys_as_vector();
         (from_index..std::cmp::min(from_index + limit, keys.len()))
-            .map(|index| self.get_shop(keys.get(index).unwrap()))
+            .map(|index| self.get_register(keys.get(index).unwrap()))
             .collect()
     }
 
