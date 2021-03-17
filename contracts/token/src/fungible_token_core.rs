@@ -102,9 +102,9 @@ trait FungibleTokenResolver {
 
 #[near_bindgen]
 impl FungibleTokenCore for Contract {
-    #[payable]
+    // #[payable]
     fn ft_transfer(&mut self, receiver_id: ValidAccountId, amount: U128, memo: Option<String>) {
-        assert_one_yocto();
+        // assert_one_yocto();
         let sender_id = env::predecessor_account_id();
         assert!(!self.is_shop(&sender_id), "Sender can NOT be a shop.");
         assert!(!self.is_shop(receiver_id.as_ref()), "Receiver can NOT be a shop.");
@@ -112,7 +112,7 @@ impl FungibleTokenCore for Contract {
         self.internal_transfer(&sender_id, receiver_id.as_ref(), amount, memo);
     }
 
-    #[payable]
+    // #[payable]
     fn ft_transfer_call(
         &mut self,
         receiver_id: ValidAccountId,
@@ -120,7 +120,7 @@ impl FungibleTokenCore for Contract {
         msg: String,
         memo: Option<String>,
     ) -> Promise {
-        assert_one_yocto();
+        // assert_one_yocto();
         let sender_id = env::predecessor_account_id();
         assert!(!self.is_shop(&sender_id), "Sender can NOT be a shop.");
         assert!(!self.is_shop(receiver_id.as_ref()), "Receiver can NOT be a shop.");

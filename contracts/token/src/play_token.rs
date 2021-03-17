@@ -1,7 +1,7 @@
 use crate::*;
 use near_sdk::{ext_contract, Gas};
 
-const GAS_FOR_BASIC: Gas = 5_000_000_000_000;
+const GAS_FOR_BASIC: Gas = 10_000_000_000_000;
 const NO_DEPOSIT: Balance = 0;
 
 #[ext_contract(ext_game)]
@@ -162,6 +162,8 @@ impl Contract {
 
         self.internal_transfer(&sponsor, &shop_id, amount, Some(String::from("sponsor")));
 
+        env::log(format!("token::sponsor_shop from {}, prapaid_gas {} ", 
+            env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         ext_game::gl_on_sponsor(
             amount.into(),
             &shop_id,
@@ -190,13 +192,15 @@ impl Contract {
         self.internal_transfer(&user, &shop_owner, shop_fee, Some(String::from("shop_fee")));
         self.internal_transfer(&user, &caller, net_amount, Some(String::from("insert_coin")));
 
+        env::log(format!("token::insert_coin from {}, prapaid_gas {} ", 
+            env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         ext_game::gl_on_play(
             amount.into(),
             net_amount.into(),
             op,
             &caller,
             NO_DEPOSIT,
-            env::prepaid_gas() - GAS_FOR_BASIC,
+            env::prepaid_gas() - 2 * GAS_FOR_BASIC,
         )
     }
 
@@ -204,6 +208,8 @@ impl Contract {
     /// predecessor should be game contract and the reward comes from it
     /// owner and shop-owner get fee from reward
     pub fn reward_coin(&mut self, receiver_id: AccountId, amount: U128) {
+        env::log(format!("token::reward_coin from {}, prapaid_gas {} ", 
+            env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
 
         let caller = env::predecessor_account_id();
         let shop_owner = self.shops.get(&caller).expect("Predecessor must be a shop.");

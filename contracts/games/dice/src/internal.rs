@@ -40,6 +40,7 @@ impl Contract {
             let gross_reward = self.jack_pod / 2;
             self.jack_pod -= gross_reward;
             result.jackpod_left = self.jack_pod.into();
+            result.reward_amount = gross_reward.into();
             // records this winning
             self.win_history.push(&WinnerInfo {
                 user: account_id.clone(),
