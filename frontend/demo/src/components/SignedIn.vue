@@ -326,17 +326,23 @@ export default {
       const float_part = temp_amount.substr(int_part.length, 4);
       return int_part + "." +float_part;
     },
+    
     formatGPT: function (amount) {
       const amount_str = amount.toString();
-      // right trim 20 digits first
-      const short_amount_str = amount_str.substr(
-        0,
-        amount_str.length - 20
-      );
-      console.log("formatGPT:short_amount_str:" + short_amount_str);
-      const int_part = short_amount_str.substr(0, short_amount_str.length - 4);
-      const float_part = short_amount_str.substr(int_part.length, 4);
-      return int_part + "." +float_part;
+      if (amount_str.length < 20) {
+        return "0";
+      } else {
+        // right trim 20 digits first
+        const short_amount_str = amount_str.substr(
+          0,
+          amount_str.length - 20
+        );
+        // console.log("formatGPT:short_amount_str:" + short_amount_str);
+        const int_part = short_amount_str.substr(0, short_amount_str.length - 4);
+        const float_part = short_amount_str.substr(int_part.length, 4);
+        return int_part + "." +float_part;
+      }
+      
     },
     logout: logout,
   },
