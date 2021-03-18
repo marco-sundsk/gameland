@@ -17,16 +17,16 @@ export async function initContract() {
   // Getting the Account ID. If still unauthorized, it's just empty string
   window.accountId = window.walletConnection.getAccountId()
 
-  // Initializing our contract APIs by contract name and configuration
-  window.contract = await new Contract(window.walletConnection.account(), nearConfig.contractName, {
-    // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['get_greeting','get_account_dice_count','get_win_history','get_contract_info'],
-    // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: ['set_greeting','roll_dice','buy_dice'],
-  })
+  // // Initializing our contract APIs by contract name and configuration
+  // window.contract = await new Contract(window.walletConnection.account(), nearConfig.contractName, {
+  //   // View methods are read only. They don't modify the state, but usually return some value.
+  //   viewMethods: ['get_greeting','get_account_dice_count','get_win_history','get_contract_info'],
+  //   // Change methods can modify the state. But you don't receive the returned value when called.
+  //   changeMethods: ['set_greeting','roll_dice','buy_dice'],
+  // })
 
   // platform contract
-  window.contract_platform = await new Contract(window.walletConnection.account(), gameland.testnet, {
+  window.contract_platform = await new Contract(window.walletConnection.account(), "gameland.testnet", {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: ['list_registers','list_shops','metadata','get_shop', 'get_register'],
     // Change methods can modify the state. But you don't receive the returned value when called.
@@ -34,13 +34,13 @@ export async function initContract() {
   })
 
   // gamecoin contract
-  window.contract_gamecoin = await new Contract(window.walletConnection.account(), playtoken.testnet, {
+  window.contract_gamecoin = await new Contract(window.walletConnection.account(), "playtoken.testnet", {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: ['ft_balance_of', 'ft_total_supply'],
   })
 
   // game contract
-  window.contract_game = await new Contract(window.walletConnection.account(), neardice.testnet, {
+  window.contract_game = await new Contract(window.walletConnection.account(), "neardice.testnet", {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: ['gl_metadata', 'gl_pub_state', 'gl_user_state', 'get_win_history','get_contract_info'],
   })

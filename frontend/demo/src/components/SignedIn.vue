@@ -5,7 +5,7 @@
     </div>
     <main>
       <h1 class="shadow py-2" v-show="isSignedIn">
-        Welcome {{ accountId }}, You have {{ this.leftCount }} dice(s) 
+        Welcome {{ accountId }}, You have {{ this.formatGPT(this.leftCount) }} GPT(s) 
       </h1>
 
       <div class="contianer">
@@ -14,19 +14,19 @@
             <form v-on:submit.prevent="buyDice" class="shadow mt-5 py-4">
               <fieldset ref="fieldset">
                 <div class="form-group py-3">
-                  <span class="text-white">Buy </span>
+                  <span class="text-white">Spend </span>
                   <select name="rollCount" v-model="rollCount" id="roll" class="ml-2 mr-2">
                     <option value="1" selected="selected">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
                     <option value="5">5</option>
                     <option value="10">10</option>
-                    <option value="30">30</option>
                     <option value="50">50</option>
-                    <option value="100">100</option>
-                    <option value="1000">1000</option>
                   </select>
-                  <span class="text-white"> times</span>
+                  <span class="text-white"> Near</span>
                   <button id="buy_dice" class="btn btn-danger btn-sm ml-2">
-                    Buy
+                    Buy GPT
                   </button>
                 </div>
               </fieldset>
@@ -35,7 +35,7 @@
           <div class="col-md-6">
             <div class="mt-5">
               <h2 class="text-white text-center">Jackpot:</h2>
-              <p class="text-center"><span class="display-3" style="letter-spacing: 0.5rem">{{jackpot}}</span>Near</p>
+              <p class="text-center"><span class="display-3" style="letter-spacing: 0.5rem">{{jackpot}}</span>GPT</p>
               <p class="text-center display-4 text-white">Recent Wins</p>
               <table class="table table-hover" style="border: solid 1px #dee2e6;background: #fff">
                 <thead>
@@ -50,7 +50,7 @@
                   <tr v-for="item in winList" :key="item.height">
                     <th scope="row">{{item.height}}</th>
                     <td>{{item.user}}</td>
-                    <td><span style="color: green">{{formatAmount(item.amount)}}</span> Near</td>
+                    <td><span style="color: green">{{formatAmount(item.amount)}}</span> </td>
                     <!-- <td>{{item.ts}}</td> -->
                   </tr>
                 </tbody>
@@ -98,6 +98,7 @@ export default {
   },
   data: function () {
     return {
+      // 100T gas = 10^14
       gas: Math.pow(10, 14).toString(),
       at: "000000000000000000000000",
       savedGreeting: "",
@@ -200,6 +201,7 @@ export default {
         .ft_balance_of({ account_id: window.accountId })
         .then((leftCount) => {
           this.leftCount = leftCount;
+          console.log('query gamecoin balance OK, return' + this.leftCount);
         });
     },
     showDice: function (num) {
@@ -238,8 +240,8 @@ export default {
         return
       }
       
-      if (this.leftCount<=0){
-        alert('Sorry, you need to buy chances of dice rolls')
+      if (parseFloat(this.formatGPT(this.leftCount)) < 1){
+        alert('Sorry, you need to buy more GPT')
         return
       }
 
@@ -253,37 +255,27 @@ export default {
           .play({
             shop_id: "neardice.testnet",
             amount: "1000000000000000000000000",
-            op: this.rollNumber,
-          })
-          .then((res) => {
+            op: "" + this.rollNumber,
+          },
+          this.gas,
+          0)
+          .then((result) => {
             this.isLoading = false;
-            this.leftCount = this.leftCount - 1;
+            this.getLeftCount();
             this.getWinHistory();
-            // debug
-            console.log(res);
-            alert(res);
-            // todo: parse res and do following
-            /*
+
+            console.log(result);
+
+            const res = JSON.parse(result);
+            // parse res and do following
             if (res.dice_point === res.user_guess) {
-              const reward_amount = res.reward_amount.toString();
-              const temp_amount = reward_amount.substr(
-                0,
-                reward_amount.length - 20
-              );
-              const int_part = temp_amount.substr(0, temp_amount.length - 4);
-              const float_part = temp_amount.substr(0, int_part.legnth);
-              alert(
-                "Congratulations to you, you win " +
-                    int_part +
-                    "." +
-                    float_part +
-                    " near"
-              );
+              const reward_amount = this.formatAmount(res.reward_amount);
+              alert("Congratulations to you, you win " + reward_amount + ' GPT!');
             } else {
               alert("You lose, the number is " + res.dice_point);
             }
             this.jackpot = this.formatAmount(res.jackpod_left);
-            */
+
           });
       } catch (e) {
         console.log(e); //re-throw
@@ -331,7 +323,19 @@ export default {
         reward_amount.length - 20
       );
       const int_part = temp_amount.substr(0, temp_amount.length - 4);
-      const float_part = temp_amount.substr(0, int_part.legnth);
+      const float_part = temp_amount.substr(int_part.length, 4);
+      return int_part + "." +float_part;
+    },
+    formatGPT: function (amount) {
+      const amount_str = amount.toString();
+      // right trim 20 digits first
+      const short_amount_str = amount_str.substr(
+        0,
+        amount_str.length - 20
+      );
+      console.log("formatGPT:short_amount_str:" + short_amount_str);
+      const int_part = short_amount_str.substr(0, short_amount_str.length - 4);
+      const float_part = short_amount_str.substr(int_part.length, 4);
       return int_part + "." +float_part;
     },
     logout: logout,

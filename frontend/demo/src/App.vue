@@ -11,8 +11,8 @@
           </b-navbar-nav>
 
           <b-modal id="modal-1" title="How To Play?" hide-footer>
-            <p class="my-1">On home page, user can see the whole status of playground without login, i.e. an NEAR account is not necessary. He would have full imformation about owner account of this contract, dice price, commission fee rate, the size of current jackpod and etc.</p>
-            <p class="my-2">Then, user can login with NEAR account and buy several dices. With dices bought, he can guess a number and roll dice again and again. If the dice point is equal to his guess, half of jackpod would belong to him. Otherwise the amount he paid for the dice would belong to the jackpod.</p>
+            <p class="my-1">On home page, user can see the whole status of playground without login, i.e. an NEAR account is not necessary. He would have full imformation about owner account of this contract, dice price, the size of current jackpod and etc.</p>
+            <p class="my-2">Then, user can login with NEAR account and buy several gamecoin. With coins bought, he can guess a number and roll dice again and again. If the dice point is equal to his guess, half of jackpod would belong to him. Otherwise the amount he paid for the dice would belong to the jackpod.</p>
             <p class="my-2">During playing, the latest 20 win records would appear and be auto refreshed on screen too.</p>
           </b-modal>
 
@@ -48,7 +48,7 @@
       class="bd-footer p-3 p-md-5 mt-5 bg-light text-center text-sm-start"
     >
       <div class="container text-center">
-        <p><strong> NEAR DICE DAPP</strong></p>
+        <p><strong> GAMELAND - NEARDICE DAPP</strong></p>
         <span>Copyright 2021</span>
       </div>
     </footer>
@@ -61,15 +61,12 @@ import getConfig from "./config";
 import SignedIn from "./components/SignedIn.vue";
 import { login,logout } from "./utils";
 
-const nearConfig = getConfig(process.env.NODE_ENV || "development");
-console.log(
-  `networkId:${nearConfig.networkId} CONTRACT_NAME:${nearConfig.contractName}`
-);
+const nearConfig = getConfig("development");
 window.networkId = nearConfig.networkId;
 
 export default {
   created() {
-    document.title = "NEAR DICE";
+    document.title = "GAMELAND - NEARDICE";
   },
   name: "App",
   components: {
