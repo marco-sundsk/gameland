@@ -20,8 +20,8 @@ impl Contract {
             shop_id: reg_form.shop_id,
             owner_id: reg_form.owner_id,
             refs: reg_form.refs,
-            height: reg_form.height.into(),
-            ts: reg_form.ts.into(),
+            height: env::block_index(),
+            ts: env::block_timestamp(),
             status: reg_form.status,
         };
         self.registers.insert(&form.shop_id, &form);
