@@ -219,9 +219,9 @@ impl Contract {
         let shop_fee = self.game_ratio_for_win.multiply(amount);
         let owner_fee = self.owner_ratio_for_win.multiply(amount);
         let net_amount = amount - shop_fee - owner_fee;
-        self.internal_transfer(&receiver_id, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
-        self.internal_transfer(&receiver_id, &shop_owner, shop_fee, Some(String::from("shop_tip")));
-        self.internal_transfer(&receiver_id, &caller, net_amount, Some(String::from("reward_coin")));
+        self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
+        self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        self.internal_transfer(&caller, &receiver_id, net_amount, Some(String::from("reward_coin")));
     }
 
 }
