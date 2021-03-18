@@ -134,7 +134,7 @@ export default {
       return window.accountId;
     },
     contractId() {
-      return window.contract ? window.contract.contractId : null;
+      return window.contract_platform ? window.contract_platform.contractId : null;
     },
     networkId() {
       return window.networkId;
@@ -195,9 +195,9 @@ export default {
       }
     },
     getLeftCount() {
-      //retrieve greeting
-      window.contract
-        .get_account_dice_count({ account_id: window.accountId })
+      // get user gamecoin balance
+      window.contract_gamecoin
+        .ft_balance_of({ account_id: window.accountId })
         .then((leftCount) => {
           this.leftCount = leftCount;
         });
@@ -218,9 +218,9 @@ export default {
       this.$refs.fieldset.disabled = true;
 
       try {
-        // make an update call to the smart contract
-        await window.contract.buy_dice(
-          {},
+        // call gameland to buy gamecoin
+        await window.contract_platform.buy_playtoken(
+          { },
           this.gas,
           parseInt(this.rollCount) + this.at
         );
@@ -249,13 +249,21 @@ export default {
 
       try {
         // make an update call to the smart contract
-        await window.contract
-          .roll_dice({
-            target: parseInt(this.rollNumber),
+        await window.contract_platform
+          .play({
+            shop_id: "neardice.testnet",
+            amount: "1000000000000000000000000",
+            op: this.rollNumber,
           })
           .then((res) => {
             this.isLoading = false;
+            this.leftCount = this.leftCount - 1;
             this.getWinHistory();
+            // debug
+            console.log(res);
+            alert(res);
+            // todo: parse res and do following
+            /*
             if (res.dice_point === res.user_guess) {
               const reward_amount = res.reward_amount.toString();
               const temp_amount = reward_amount.substr(
@@ -274,9 +282,8 @@ export default {
             } else {
               alert("You lose, the number is " + res.dice_point);
             }
-            this.leftCount = this.leftCount - 1;
             this.jackpot = this.formatAmount(res.jackpod_left);
-            console.log(res);
+            */
           });
       } catch (e) {
         console.log(e); //re-throw
@@ -289,7 +296,7 @@ export default {
     getWinHistory: async function () {
       try {
         // make an update call to the smart contract
-        await window.contract
+        await window.contract_game
           .get_win_history({
             from_index: 0,
             limit: 20,
@@ -306,7 +313,7 @@ export default {
     getContactInfo: async function () {
       try {
         // make an update call to the smart contract
-        await window.contract
+        await window.contract_game
           .get_contract_info({})
           .then((res) => {
             this.jackpot = this.formatAmount(res.jack_pod);

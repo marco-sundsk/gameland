@@ -1,7 +1,7 @@
 import { connect, Contract, keyStores, WalletConnection } from 'near-api-js'
 import getConfig from './config'
 
-const nearConfig = getConfig(process.env.NODE_ENV || 'development')
+const nearConfig = getConfig('development')
 
 console.log(nearConfig)
 
@@ -24,6 +24,26 @@ export async function initContract() {
     // Change methods can modify the state. But you don't receive the returned value when called.
     changeMethods: ['set_greeting','roll_dice','buy_dice'],
   })
+
+  // platform contract
+  window.contract_platform = await new Contract(window.walletConnection.account(), gameland.testnet, {
+    // View methods are read only. They don't modify the state, but usually return some value.
+    viewMethods: ['list_registers','list_shops','metadata','get_shop', 'get_register'],
+    // Change methods can modify the state. But you don't receive the returned value when called.
+    changeMethods: ['buy_playtoken', 'sell_playtoken', 'play','sponsor','register_shop', 'resovle_register'],
+  })
+
+  // gamecoin contract
+  window.contract_gamecoin = await new Contract(window.walletConnection.account(), playtoken.testnet, {
+    // View methods are read only. They don't modify the state, but usually return some value.
+    viewMethods: ['ft_balance_of', 'ft_total_supply'],
+  })
+
+  // game contract
+  window.contract_game = await new Contract(window.walletConnection.account(), neardice.testnet, {
+    // View methods are read only. They don't modify the state, but usually return some value.
+    viewMethods: ['gl_metadata', 'gl_pub_state', 'gl_user_state', 'get_win_history','get_contract_info'],
+  })
 }
 
 export function logout() {
@@ -37,5 +57,5 @@ export function login() {
   // user's behalf.
   // This works by creating a new access key for the user's account and storing
   // the private key in localStorage.
-  window.walletConnection.requestSignIn(nearConfig.contractName)
+  window.walletConnection.requestSignIn("gameland.testnet")
 }
