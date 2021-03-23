@@ -11,26 +11,7 @@
       <div class="contianer">
         <div class="row">
           <div class="col-md-3">
-            <form v-on:submit.prevent="buyDice" class="shadow mt-5 py-4">
-              <fieldset ref="fieldset">
-                <div class="form-group py-3">
-                  <span class="text-white">Spend </span>
-                  <select name="rollCount" v-model="rollCount" id="roll" class="ml-2 mr-2">
-                    <option value="1" selected="selected">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                  </select>
-                  <span class="text-white"> Near</span>
-                  <button id="buy_dice" class="btn btn-danger btn-sm ml-2">
-                    Buy GPT
-                  </button>
-                </div>
-              </fieldset>
-            </form>
+
           </div>
           <div class="col-md-6">
             <div class="mt-5">
@@ -144,7 +125,6 @@ export default {
 
   methods: {
     chooseNumber(num) {
-      console.log(num)
       this.rollNumber = num
       if (num==1) {
         this.active1 = 'active'

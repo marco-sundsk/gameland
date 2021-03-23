@@ -1,9 +1,9 @@
-import { connect, Contract, keyStores, WalletConnection } from 'near-api-js'
+import { connect, Contract, keyStores } from 'near-api-js'
 import getConfig from './config'
+import * as nearApi from 'near-api-js'
+
 
 const nearConfig = getConfig('development')
-
-console.log(nearConfig)
 
 // Initialize contract & set global variables
 export async function initContract() {
@@ -12,11 +12,10 @@ export async function initContract() {
 
   // Initializing Wallet based Account. It can work with NEAR testnet wallet that
   // is hosted at https://wallet.testnet.near.org
-  window.walletConnection = new WalletConnection(near)
+  // window.walletConnection = new WalletConnection(near)
 
   // Getting the Account ID. If still unauthorized, it's just empty string
-  window.accountId = window.walletConnection.getAccountId()
-
+  
   // // Initializing our contract APIs by contract name and configuration
   // window.contract = await new Contract(window.walletConnection.account(), nearConfig.contractName, {
   //   // View methods are read only. They don't modify the state, but usually return some value.
@@ -24,6 +23,21 @@ export async function initContract() {
   //   // Change methods can modify the state. But you don't receive the returned value when called.
   //   changeMethods: ['set_greeting','roll_dice','buy_dice'],
   // })
+  window.getCurrentUser = async () => {
+    // Needed to access wallet
+    window.walletConnection = new nearApi.WalletConnection(near)
+    window.accountId = window.walletConnection.getAccountId()
+    window.walletAccount = new nearApi.WalletAccount(near)
+    if (window.walletConnection.getAccountId()) {
+      const accountId = window.walletConnection.getAccountId()
+      window.currentUser = {
+        accountId,
+        account_id: accountId,
+        balance: (await window.walletConnection.account().state()).amount
+      }
+    }
+  }
+  await window.getCurrentUser()
 
   // platform contract
   window.contract_platform = await new Contract(window.walletConnection.account(), "gameland.testnet", {
@@ -36,7 +50,7 @@ export async function initContract() {
   // gamecoin contract
   window.contract_gamecoin = await new Contract(window.walletConnection.account(), "playtoken.testnet", {
     // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['ft_balance_of', 'ft_total_supply'],
+    viewMethods: ['ft_balance_of', 'ft_total_supply', 'get_contract_info'],
   })
 
   // game contract
