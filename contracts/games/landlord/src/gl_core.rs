@@ -81,6 +81,9 @@ impl GameLandCore for Contract {
             env::panic(b"The house has been occupied!")
         }
 
+        // occupy in advance, if insert_coin failed, we will cancel it in callback.
+        // self.houses.insert(&guess, &env::signer_account_id());
+
         ext_play_token::insert_coin(
             amount,
             op,
@@ -93,25 +96,29 @@ impl GameLandCore for Contract {
     fn gl_on_play(&mut self, gross_amount: U128, net_amount: U128, op: String) -> String {
         env::log(format!("game::gl_on_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
-
+        
         let player = env::signer_account_id();
-
         let guess = op.parse::<u8>().unwrap_or(0);
-        let result = self.internal_play(&player, gross_amount.into(), net_amount.into(), guess);
-        let reward: u128 = result.reward_amount.into();
+        let gross_amount: u128 = gross_amount.into();
+        let net_amount: u128 = net_amount.into();
+        
+        let result = self.internal_play(&player, gross_amount, net_amount, guess);
+        let mut reward: u128 = result.reward_amount.into();
         if reward > 0 {
-            if reward > self.play_fee {
+            // the settle player get a double reward
+            if reward > 2 * self.play_fee {
                 ext_play_token::reward_coin(
                     player,
-                    self.play_fee.into(),
+                    (2 * self.play_fee).into(),
                     &String::from(TOKEN_CONTRACT),
                     NO_DEPOSIT,
                     GAS_FOR_BASIC,
                 );
                 reward = reward - self.play_fee;
             }
+            // the remaining reward send to the winner
             ext_play_token::reward_coin(
-                result.lucky_guy,
+                result.lucky_guy.clone(),
                 reward.into(),
                 &String::from(TOKEN_CONTRACT),
                 NO_DEPOSIT,

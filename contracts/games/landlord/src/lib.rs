@@ -151,17 +151,14 @@ impl Contract {
 
     /// get all occupied houses info
     pub fn get_maket_info(&self) -> HashMap<u8, String> {
-        let mut ret = HashMap::new();
 
         let keys = self.houses.keys_as_vector();
-        (0..keys.len()).map(
-            |index| ret.insert(
-                keys.get(index).unwrap(), 
-                self.houses.get(&keys.get(index).unwrap()).unwrap_or(String::from(""))
-            )
-        );
 
-        ret
+        (0..keys.len()).map(
+            |index| (
+                keys.get(index).unwrap(), 
+                self.houses.get(&keys.get(index).unwrap()).unwrap_or(String::from("")))
+        ).collect::<HashMap<_,_>>()
     }
 
     fn get_hrw_info(&self, index: u64) -> HumanReadableWinnerInfo {

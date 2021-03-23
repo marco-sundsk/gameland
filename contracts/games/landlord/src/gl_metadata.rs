@@ -37,14 +37,21 @@ impl GameMetadataProvider for Contract {
 
     fn gl_user_state(&self, user_id: ValidAccountId) -> String {
 
-        let mut players = HashMap::new();
         let keys = self.houses.keys_as_vector();
-        (0..keys.len()).map(
-            |index| players.insert(
+        // let mut players = HashMap::new();
+        // for index in 0..keys.len() {
+        //     players.insert(
+        //         self.houses.get(&keys.get(index).unwrap()).unwrap_or(String::from("")),
+        //         keys.get(index).unwrap(), 
+        //     ); 
+        // }
+
+        let players = (0..keys.len()).map(
+            |index| (
                 self.houses.get(&keys.get(index).unwrap()).unwrap_or(String::from("")),
-                keys.get(index).unwrap(), 
-            )
-        );
+                keys.get(index).unwrap()
+                )
+        ).collect::<HashMap<_,_>>();
 
         if players.contains_key(user_id.as_ref()) {
             format!("You have taken house #{}", players.get(user_id.as_ref()).unwrap())
