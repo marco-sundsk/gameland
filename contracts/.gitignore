@@ -4,4 +4,6 @@ target
 **/target/
 **/pkg/
 **/*.txt
+**/account.txt
 .cargo/
+

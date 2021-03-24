@@ -1,11 +1,11 @@
-NCD-GroupA-Demo Smart Contract
+GameLand Game Smart Contract
 ==================
 
-A demo contract for NCD Pojrect Phase-1.
+Game AngleLand.
 
 Play with this contract
 ========================
-the contract is deployed at testnet with the name `dev-1614240595058-5266655`
+the contract is deployed at testnet with the name `angleland.testnet`
 
 you can set it to env for later use:
 ```shell
