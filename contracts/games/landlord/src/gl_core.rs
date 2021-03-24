@@ -101,6 +101,36 @@ impl GameLandCore for Contract {
         let guess = op.parse::<u8>().unwrap_or(0);
         let gross_amount: u128 = gross_amount.into();
         let net_amount: u128 = net_amount.into();
+
+        // see if user choose valid house
+        if guess == 0 || guess > self.house_count {
+            env::panic(b"Inner Error: Invalid house code")
+        } 
+
+        let house_owner = self.houses.get(&guess).unwrap_or(String::from(""));
+        if house_owner != "" {
+            // someone else has occupy this house, refund coin to player
+            env::log(format!("someone else has occupied the house, return playtoken").as_bytes());
+            ext_play_token::reward_coin(
+                player.clone(),
+                self.play_fee.into(),
+                &String::from(TOKEN_CONTRACT),
+                NO_DEPOSIT,
+                GAS_FOR_BASIC,
+            );
+            let result = HumanReadablePlayResult {
+                user: player.clone(),
+                round: self.current_round.into(),
+                user_choosen: guess,
+                god_choosen: 0 as u8,
+                lucky_guy: String::from(""), 
+                reward_amount: 0.into(),  
+                jackpod_left: self.jack_pod.into(),
+                height: env::block_index().into(),
+                ts: env::block_timestamp().into(),
+            };
+            return near_sdk::serde_json::to_string(&result).unwrap();
+        }
         
         let result = self.internal_play(&player, gross_amount, net_amount, guess);
         let mut reward: u128 = result.reward_amount.into();
