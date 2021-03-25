@@ -56,7 +56,7 @@ near call gameland.testnet register_shop '{"reg_form": {"flag": 1, "shop_id": "a
 near view gameland.testnet list_registers '{"from_index": 0, "limit": 100}'
 near call gameland.testnet resovle_register '{"shop_id": "angleland.testnet", "pass": true, "new_status": 2}' --account_id=humeng.testnet --gas=20000000000000
 
-### sponsor this game with 5 tokens
+### sponsor this game with 5 tokensgit 
 near call angleland.testnet gl_sponsor '{"amount": "5000000000000000000000000"}' --account_id=humeng.testnet --gas=30000000000000
 ```
 

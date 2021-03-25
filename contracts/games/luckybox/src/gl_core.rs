@@ -62,30 +62,35 @@ impl GameLandCore for Contract {
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         let amount: u128 = amount.into();
         let sponsor = env::signer_account_id();
-        self.jack_pod += amount;
-        format!("{} sponsored {}, jackpod increase to {}, ", sponsor, amount, self.jack_pod)
+        self.total_jackpot += amount;
+        format!("{} sponsored {}, jackpod increase to {}, ", sponsor, amount, self.total_jackpot)
     }
 
     fn gl_play(&mut self, amount: U128, op: String) -> Promise {
         env::log(format!("game::gl_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
 
-        // see if user choose valid house
-        let guess: u8 = op.parse::<u8>().unwrap_or(0);
-        if guess == 0 || guess > self.house_count {
-            env::panic(b"Invalid house code")
-        } 
-
-        let house_owner = self.houses.get(&guess).unwrap_or(String::from(""));
-        if house_owner != "" {
-            env::panic(b"The house has been occupied!")
+        let amount: u128 = amount.into();
+        if amount < self.play_fee {
+            env::panic(b"Insufficient coin inserted.")
         }
 
-        // occupy in advance, if insert_coin failed, we will cancel it in callback.
-        // self.houses.insert(&guess, &env::signer_account_id());
+        // see if user choose valid box
+        let guess: u8 = op.parse::<u8>().unwrap_or(0);
+        if guess == 0 || guess > self.box_count {
+            env::panic(b"Invalid box id.")
+        } 
+
+        // see if this round ended already
+        let (round_end, winners) = self.internal_settle(); 
+        if round_end {
+            // TODO: Distribute reward to each one in winners,
+            // should use batch_rewards interface of token contract
+            env::panic(b"Round end.")
+        }
 
         ext_play_token::insert_coin(
-            amount,
+            amount.into(),
             op,
             &String::from(TOKEN_CONTRACT),
             NO_DEPOSIT,
@@ -98,69 +103,26 @@ impl GameLandCore for Contract {
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         
         let player = env::signer_account_id();
-        let guess = op.parse::<u8>().unwrap_or(0);
+        let box_id = op.parse::<u8>().unwrap_or(0);
         let gross_amount: u128 = gross_amount.into();
         let net_amount: u128 = net_amount.into();
-
-        // see if user choose valid house
-        if guess == 0 || guess > self.house_count {
-            env::panic(b"Inner Error: Invalid house code")
-        } 
-
-        let house_owner = self.houses.get(&guess).unwrap_or(String::from(""));
-        if house_owner != "" {
-            // someone else has occupy this house, refund coin to player
-            env::log(format!("someone else has occupied the house, return playtoken").as_bytes());
-            ext_play_token::reward_coin(
-                player.clone(),
-                self.play_fee.into(),
-                &String::from(TOKEN_CONTRACT),
-                NO_DEPOSIT,
-                GAS_FOR_BASIC,
-            );
-            let result = HumanReadablePlayResult {
-                user: player.clone(),
-                round: self.current_round.into(),
-                user_choosen: guess,
-                god_choosen: 0 as u8,
-                lucky_guy: String::from(""), 
-                reward_amount: 0.into(),  
-                jackpod_left: self.jack_pod.into(),
-                height: env::block_index().into(),
-                ts: env::block_timestamp().into(),
-            };
-            return near_sdk::serde_json::to_string(&result).unwrap();
-        }
         
-        let result = self.internal_play(&player, gross_amount, net_amount, guess);
-        let mut reward: u128 = result.reward_amount.into();
-        if reward > 0 {
-            // the settle player get a double reward
-            if reward > 2 * self.play_fee {
-                ext_play_token::reward_coin(
-                    player,
-                    (2 * self.play_fee).into(),
-                    &String::from(TOKEN_CONTRACT),
-                    NO_DEPOSIT,
-                    GAS_FOR_BASIC,
-                );
-                reward = reward - self.play_fee;
-            }
-            // the remaining reward send to the winner
-            ext_play_token::reward_coin(
-                result.lucky_guy.clone(),
-                reward.into(),
-                &String::from(TOKEN_CONTRACT),
-                NO_DEPOSIT,
-                GAS_FOR_BASIC,
-            );
-        }
+        let result = self.internal_play(&player, gross_amount, net_amount, box_id);
+
         near_sdk::serde_json::to_string(&result).unwrap()
 
     }
 
     fn gl_settle(&mut self, op: String) -> String {
-        String::from("Not applicable in this game.")
+        let (round_end, winners) = self.internal_settle(); 
+        if round_end {
+            // TODO: Distribute reward to each one in winners,
+            // should use batch_rewards interface of token contract
+            format!("round end.")
+        } else {
+            String::from("Still in round.")
+        }
+        
     }
 
 }

@@ -1,5 +1,5 @@
 /*
- * This is GameLand_Landlord contract:
+ * This is GameLand_Luckybox contract:
  * 
  * 
  *
@@ -33,46 +33,63 @@ construct_uint! {
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[derive(BorshDeserialize, BorshSerialize)]
-pub struct WinnerInfo {
-    pub user: AccountId,  // winner
-    pub round: u128,
-    pub amount: Balance, // win prize
-    pub lucky_number: u8, 
+pub struct BoxInfo {
+    pub box_id: u8,
+    pub investors: HashMap<AccountId, Balance>,
+    pub total_amount: Balance,
+    // start height and time of this round
     pub height: BlockHeight,
     pub ts: u64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(crate = "near_sdk::serde")]
-pub struct HumanReadableWinnerInfo {
-    pub user: AccountId,
-    pub round: U128,
-    pub amount: U128,
-    pub lucky_number: u8,
+pub struct HumanReadableBoxInfo {
+    pub box_id: u8,
+    pub investors: HashMap<String, U128>,
+    pub total_amount: U128,
     pub height: U64,
     pub ts: U64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(BorshDeserialize, BorshSerialize)]
+pub struct WinnerInfo {
+    pub round: u128,
+    pub total_reward: Balance, 
+    pub winners: HashMap<AccountId, Balance>,  // winner->reward
+    // settle height and time of this round
+    pub height: BlockHeight,
+    pub ts: u64,
+}
+
+#[derive(Serialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct HumanReadableWinnerInfo {
+    pub round: U128,
+    pub total_reward: U128,
+    pub winners: HashMap<String, U128>,
+    pub height: U64,
+    pub ts: U64,
+}
+
+#[derive(Serialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadableContractInfo {
     pub owner: AccountId,
-    pub jack_pod: U128,
-    pub house_count: u8,
+    pub total_jackpot: U128,
+    pub box_count: u8,
     pub play_fee: U128,
     pub current_round: U128,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadablePlayResult {
     pub user: AccountId,
     pub round: U128,
-    pub user_choosen: u8,
-    pub god_choosen: u8,
-    pub lucky_guy: String,  // empty string if no one win 
-    pub reward_amount: U128,  // 0 if no one win
-    pub jackpod_left: U128,
+    pub box_id: u8,
+    pub box_amount: U128,
+    pub total_jackpot: U128,
     pub height: U64,
     pub ts: U64,
 }
@@ -82,18 +99,25 @@ pub struct HumanReadablePlayResult {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
+    // params
     pub owner_id: AccountId,
-    pub houses: UnorderedMap<u8, AccountId>,
-    pub house_count: u8,
-    pub play_fee: Balance,  // how many token needed to play once.
-    pub jack_pod: Balance,
+    pub box_count: u8,
+    pub per_round_last: u32,
+    pub play_fee: Balance,  // the minimum token needed to play once.
+    // status
+    pub total_jackpot: Balance,  // totoal jackpot
+    pub boxes: UnorderedMap<u8, BoxInfo>,
     pub win_history: Vector<WinnerInfo>,
     pub current_round: u128,
+    pub current_min_box_id: u8,
+    // the real endtime is start_height + per_round_last + random
+    pub current_round_start_height: BlockHeight,
+    
 }
 
 impl Default for Contract {
     fn default() -> Self {
-        env::panic(b"dice contract should be initialized before usage")
+        env::panic(b"this contract should be initialized before using")
     }
 }
 
@@ -103,7 +127,8 @@ impl Contract {
     #[init]
     pub fn new(
         owner_id: AccountId,
-        house_count: u8,
+        box_count: u8,
+        per_round_last: u32,
         play_fee: U128,
     ) -> Self {
         assert!(!env::state_exists(), "Already initialized");
@@ -114,12 +139,15 @@ impl Contract {
         
         Self {
             owner_id,
-            house_count,
-            houses: UnorderedMap::new(b"h".to_vec()),
+            box_count,
+            per_round_last,
             play_fee: play_fee.into(),
-            jack_pod: 0_u128,
+            total_jackpot: 0_u128,
+            boxes: UnorderedMap::new(b"b".to_vec()),
             win_history: Vector::new(b"w".to_vec()),
             current_round: 0,
+            current_min_box_id: 0,
+            current_round_start_height: 0,
         }
     }
 
@@ -135,9 +163,13 @@ impl Contract {
         );
     }
     
-    pub fn update_house_count(&mut self, house_count: u8) {
+    pub fn update_box_count(&mut self, box_count: u8) {
         self.assert_owner();
-        self.house_count = house_count;
+        if self.current_round_start_height == 0 {
+            self.box_count = box_count;
+        } else {
+            env::panic(b"box count can only be updated between rounds.")
+        }
     }
 
     pub fn update_play_fee(&mut self, play_fee: U128) {
@@ -149,25 +181,56 @@ impl Contract {
     // view functions
     //***********************/
 
+    fn get_box_info(&self, box_id: u8) -> HumanReadableBoxInfo {
+        if let Some(the_box) = self.boxes.get(&box_id) {
+            HumanReadableBoxInfo {
+                box_id: the_box.box_id,
+                investors: {
+                    the_box.investors.keys().map(
+                        |key| ( 
+                            key.clone(), 
+                            the_box.investors.get(key).unwrap().clone().into()
+                        )
+                    ).collect::<HashMap<_,_>>()
+                },
+                total_amount: the_box.total_amount.into(),
+                height: the_box.height.into(),
+                ts: the_box.ts.into(),
+            }
+        } else {
+            HumanReadableBoxInfo {
+                box_id,
+                investors: HashMap::new(),
+                total_amount: 0.into(),
+                height: 0.into(),
+                ts: 0.into(),
+            }
+        }
+    } 
     /// get all occupied houses info
-    pub fn get_maket_info(&self) -> HashMap<u8, String> {
-
-        let keys = self.houses.keys_as_vector();
+    pub fn get_boxes_info(&self) -> HashMap<u8, HumanReadableBoxInfo> {
+        let keys = self.boxes.keys_as_vector();
 
         (0..keys.len()).map(
             |index| (
                 keys.get(index).unwrap(), 
-                self.houses.get(&keys.get(index).unwrap()).unwrap_or(String::from("")))
+                self.get_box_info(keys.get(index).unwrap()))
         ).collect::<HashMap<_,_>>()
     }
 
     fn get_hrw_info(&self, index: u64) -> HumanReadableWinnerInfo {
         let info = self.win_history.get(index).expect("Error: no this item in winner history!");
         HumanReadableWinnerInfo {
-            user: info.user.clone(),
             round: info.round.into(),
-            amount: info.amount.into(),
-            lucky_number: info.lucky_number,
+            total_reward: info.total_reward.into(),
+            winners: {
+                info.winners.keys().map(
+                        |key| ( 
+                            key.clone(), 
+                            info.winners.get(key).unwrap().clone().into()
+                        )
+                    ).collect::<HashMap<_,_>>()
+            },
             height: info.height.into(),
             ts: info.ts.into(),
         }
@@ -184,8 +247,8 @@ impl Contract {
     pub fn get_contract_info(&self) -> HumanReadableContractInfo {
         HumanReadableContractInfo {
             owner: self.owner_id.clone(),
-            jack_pod: self.jack_pod.into(),
-            house_count: self.house_count,
+            total_jackpot: self.total_jackpot.into(),
+            box_count: self.box_count,
             play_fee: self.play_fee.into(),
             current_round: self.current_round.into(),
         }
