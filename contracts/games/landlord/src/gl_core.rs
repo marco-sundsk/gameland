@@ -1,6 +1,6 @@
 use crate::*;
 use near_sdk::json_types::ValidAccountId;
-use near_sdk::{ext_contract, Gas, PromiseResult};
+use near_sdk::{ext_contract, Gas, PromiseOrValue};
 
 const TOKEN_CONTRACT: &str = "playtoken.testnet";
 
@@ -22,7 +22,7 @@ pub trait GameLandCore {
 
     /// signer is the player,
     /// predecessor could be gameland or player himself,
-    fn gl_play(&mut self, amount: U128, op: String) -> Promise;
+    fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String>;
 
     /// token contract invoke this method, 
     /// to indicate that the net_amount of token 
@@ -66,19 +66,19 @@ impl GameLandCore for Contract {
         format!("{} sponsored {}, jackpod increase to {}, ", sponsor, amount, self.jack_pod)
     }
 
-    fn gl_play(&mut self, amount: U128, op: String) -> Promise {
+    fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String> {
         env::log(format!("game::gl_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
 
         // see if user choose valid house
         let guess: u8 = op.parse::<u8>().unwrap_or(0);
         if guess == 0 || guess > self.house_count {
-            env::panic(b"Invalid house code")
+            return PromiseOrValue::Value(String::from("Invalid house code."));
         } 
 
         let house_owner = self.houses.get(&guess).unwrap_or(String::from(""));
         if house_owner != "" {
-            env::panic(b"The house has been occupied!")
+            return PromiseOrValue::Value(String::from("The house has been occupied."));
         }
 
         // occupy in advance, if insert_coin failed, we will cancel it in callback.
@@ -90,7 +90,7 @@ impl GameLandCore for Contract {
             &String::from(TOKEN_CONTRACT),
             NO_DEPOSIT,
             env::prepaid_gas() - GAS_FOR_BASIC,
-        )
+        ).into()
     }
 
     fn gl_on_play(&mut self, gross_amount: U128, net_amount: U128, op: String) -> String {

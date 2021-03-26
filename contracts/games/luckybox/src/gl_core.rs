@@ -1,6 +1,6 @@
 use crate::*;
 use near_sdk::json_types::ValidAccountId;
-use near_sdk::{ext_contract, Gas, PromiseResult};
+use near_sdk::{ext_contract, Gas, PromiseResult, PromiseOrValue};
 
 const TOKEN_CONTRACT: &str = "playtoken.testnet";
 
@@ -22,7 +22,7 @@ pub trait GameLandCore {
 
     /// signer is the player,
     /// predecessor could be gameland or player himself,
-    fn gl_play(&mut self, amount: U128, op: String) -> Promise;
+    fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String>;
 
     /// token contract invoke this method, 
     /// to indicate that the net_amount of token 
@@ -41,6 +41,7 @@ trait PlayToken {
     fn insert_coin(&mut self, amount: U128, op: String) -> Promise;
     /// call this to distribute reward to receiver
     fn reward_coin(&mut self, receiver_id: AccountId, amount: U128);
+    fn reward_coin_multiple(&mut self, receivers: HashMap<AccountId, U128>);
 }
 
 #[near_bindgen]
@@ -66,19 +67,31 @@ impl GameLandCore for Contract {
         format!("{} sponsored {}, jackpod increase to {}, ", sponsor, amount, self.total_jackpot)
     }
 
-    fn gl_play(&mut self, amount: U128, op: String) -> Promise {
+    fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String> {
         env::log(format!("game::gl_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
 
         let amount: u128 = amount.into();
         if amount < self.play_fee {
-            env::panic(b"Insufficient coin inserted.")
+            return PromiseOrValue::Value(String::from("Insufficient coin inserted."));
+            // return ext_self::notice_error(
+            //     "Insufficient coin inserted.".to_string(),
+            //     &env::current_account_id(),
+            //     NO_DEPOSIT,
+            //     env::prepaid_gas() - GAS_FOR_BASIC,
+            // );
         }
 
         // see if user choose valid box
         let guess: u8 = op.parse::<u8>().unwrap_or(0);
         if guess == 0 || guess > self.box_count {
-            env::panic(b"Invalid box id.")
+            return PromiseOrValue::Value(String::from("Invalid box id."));
+            // return ext_self::notice_error(
+            //     "Invalid box id.".to_string(),
+            //     &env::current_account_id(),
+            //     NO_DEPOSIT,
+            //     env::prepaid_gas() - GAS_FOR_BASIC,
+            // );
         } 
 
         // see if this round ended already
@@ -86,7 +99,13 @@ impl GameLandCore for Contract {
         if round_end {
             // TODO: Distribute reward to each one in winners,
             // should use batch_rewards interface of token contract
-            env::panic(b"Round end.")
+            return PromiseOrValue::Value(String::from("Round end."));
+            // return ext_self::notice_error(
+            //     "Round end.".to_string(),
+            //     &env::current_account_id(),
+            //     NO_DEPOSIT,
+            //     env::prepaid_gas() - GAS_FOR_BASIC,
+            // );
         }
 
         ext_play_token::insert_coin(
@@ -95,7 +114,7 @@ impl GameLandCore for Contract {
             &String::from(TOKEN_CONTRACT),
             NO_DEPOSIT,
             env::prepaid_gas() - GAS_FOR_BASIC,
-        )
+        ).into()
     }
 
     fn gl_on_play(&mut self, gross_amount: U128, net_amount: U128, op: String) -> String {
