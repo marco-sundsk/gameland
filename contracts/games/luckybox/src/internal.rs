@@ -37,8 +37,8 @@ impl Contract {
                     |key| {
                         let winner = key.clone();
                         let winner_share = lucky_box.investors.get(key).unwrap();
-                        let winner_reward = total_reward * winner_share / lucky_box.total_amount;
-                        (winner, winner_reward)
+                        let winner_reward = U256::from(total_reward) * U256::from(*winner_share) / U256::from(lucky_box.total_amount);
+                        (winner, winner_reward.as_u128())
                     }
                 ).collect::<HashMap<AccountId, Balance>>();
                 let win_his = WinnerInfo {

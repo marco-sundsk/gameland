@@ -3,7 +3,7 @@ use near_sdk::{ext_contract, Gas, PromiseOrValue};
 
 const TOKEN_CONTRACT: &str = "playtoken.testnet";
 
-const GAS_FOR_BASIC: Gas = 10_000_000_000_000;
+const GAS_FOR_BASIC: Gas = 20_000_000_000_000;
 
 
 const NO_DEPOSIT: Balance = 0;

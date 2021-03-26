@@ -4,8 +4,6 @@
  * 
  *
  */
-
-
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::wee_alloc;
 use near_sdk::json_types::{U64, U128, ValidAccountId};
@@ -80,6 +78,9 @@ pub struct HumanReadableContractInfo {
     pub box_count: u8,
     pub play_fee: U128,
     pub current_round: U128,
+    pub round_start_height: U64,
+    pub round_period: u32,
+    pub cur_win_box: u8,
 }
 
 #[derive(Serialize)]
@@ -251,6 +252,9 @@ impl Contract {
             box_count: self.box_count,
             play_fee: self.play_fee.into(),
             current_round: self.current_round.into(),
+            round_start_height: self.current_round_start_height.into(),
+            round_period: self.per_round_last,
+            cur_win_box: self.current_min_box_id,
         }
     }
 
