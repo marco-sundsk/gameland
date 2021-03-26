@@ -65,6 +65,30 @@ impl Contract {
         }
     }
 
+    pub(crate) fn internal_batch_transfer(
+        &mut self,
+        sender_id: &AccountId,
+        receivers: &HashMap<AccountId, Balance>,
+        memo: Option<String>,
+    ) {
+        let mut total_transfered: u128 = 0;
+        let mut receiver_count: u32 = 0;
+        for (receiver_id, amount) in receivers {
+            assert!(amount > &0, "The amount should be a positive number");
+            if sender_id != receiver_id {
+                self.internal_deposit(receiver_id, *amount);
+                receiver_count += 1;
+                total_transfered += *amount;
+            }
+        }
+        self.internal_withdraw(sender_id, total_transfered);
+        
+        env::log(format!("Bactch Transfer {} from {} to {} receivers.", total_transfered, sender_id, receiver_count).as_bytes());
+        if let Some(memo) = memo {
+            env::log(format!("Memo: {}", memo).as_bytes());
+        }
+    }
+
     fn try_register_user(&mut self, user: &AccountId) {
         if !self.accounts.contains_key(user) {
             self.accounts.insert(user, &0);
