@@ -5,25 +5,25 @@ Game Lucky Box.
 
 Play with this contract
 ========================
-the contract is deployed at testnet with the name `angleland.testnet`
+the contract is deployed at testnet with the name `luckybox.testnet`
 
 you can set it to env for later use:
 ```shell
-export CONTRACTID=angleland.testnet
+export GAMEID=luckybox.testnet
 ```
 
 ## Look around
 ```shell
 # return info
-near view $CONTRACTID get_contract_info ''
+near view $GAMEID get_contract_info ''
 # return current round game info
-near view $CONTRACTID get_market_info ''
+near view $GAMEID get_box_info ''
 # return win history list
-near view $CONTRACTID get_win_history '{"from_index": 0, "limit": 100}'
+near view $GAMEID get_win_history '{"from_index": 0, "limit": 100}'
 # return metadata
-near view $CONTRACTID gl_metadata ''
-near view $CONTRACTID gl_pub_state ''
-near view $CONTRACTID gl_user_state '{"user_id": "rb01.testnet"}'
+near view $GAMEID gl_metadata ''
+near view $GAMEID gl_pub_state ''
+near view $GAMEID gl_user_state '{"user_id": "rb01.testnet"}'
 ```
 ## Let's play
 ```shell
@@ -48,16 +48,16 @@ srouce ./build.sh
 ```
 
 ```shell
-near deploy angleland.testnet res/gl_landlord.wasm --account_id=angleland.testnet
-near call angleland.testnet new '{"owner_id": "humeng.testnet", "house_count": 36, "play_fee": "1000000000000000000000000"}' --account_id=angleland.testnet
+near deploy $GAMEID res/gl_landlord.wasm --account_id=$GAMEID
+near call $GAMEID new '{"owner_id": "humeng.testnet", "house_count": 36, "play_fee": "1000000000000000000000000"}' --account_id=$GAMEID
 
 ### register this game
-near call gameland.testnet register_shop '{"reg_form": {"flag": 1, "shop_id": "angleland.testnet", "owner_id": "humeng.testnet", "refs": "https://github.com/marco-sundsk/gameland/", "height": "0", "ts": "0", "status": 0}}' --account_id=humeng.testnet
+near call gameland.testnet register_shop '{"reg_form": {"flag": 1, "shop_id": "luckybox.testnet", "owner_id": "humeng.testnet", "refs": "https://github.com/marco-sundsk/gameland/", "height": "0", "ts": "0", "status": 0}}' --account_id=humeng.testnet
 near view gameland.testnet list_registers '{"from_index": 0, "limit": 100}'
-near call gameland.testnet resovle_register '{"shop_id": "angleland.testnet", "pass": true, "new_status": 2}' --account_id=humeng.testnet --gas=20000000000000
+near call gameland.testnet resovle_register '{"shop_id": "lucky.testnet", "pass": true, "new_status": 2}' --account_id=humeng.testnet --gas=20000000000000
 
 ### sponsor this game with 5 tokens
-near call angleland.testnet gl_sponsor '{"amount": "5000000000000000000000000"}' --account_id=humeng.testnet --gas=30000000000000
+near call $GAMEID gl_sponsor '{"amount": "5000000000000000000000000"}' --account_id=humeng.testnet --gas=30000000000000
 ```
 
 

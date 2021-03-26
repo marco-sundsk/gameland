@@ -46,6 +46,9 @@ impl Contract {
                     total_reward,
                     winners: winners.clone(),
                     height: env::block_index(),
+
+
+
                     ts: env::block_timestamp(),  
                 };
                 self.win_history.push(&win_his);
@@ -54,6 +57,7 @@ impl Contract {
                 self.total_jackpot -= total_reward;
                 self.current_round += 1;
                 self.current_round_start_height = 0;
+                self.current_round_start_ts = 0;
                 self.boxes.clear();
                 self.current_min_box_id = 1;
                 // return value
@@ -102,6 +106,7 @@ impl Contract {
         // see if it triggers a round start
         if self.current_round_start_height == 0 {
             self.current_round_start_height = env::block_index();
+            self.current_round_start_ts = env::block_timestamp();
             self.current_min_box_id = box_id;
         } else {
             self.current_min_box_id = self.internal_get_winbox().unwrap().box_id;

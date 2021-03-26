@@ -21,7 +21,7 @@ pub trait GameMetadataProvider {
 impl GameMetadataProvider for Contract {
     fn gl_metadata() -> GameMetadata {
         GameMetadata {
-            version: String::from("0.1.0"),
+            version: String::from("0.1.1"),
             name: String::from("Lucky Box"),
             logo_url: String::from("https://github.com/"),
             thumb_url: String::from("https://github.com/"),

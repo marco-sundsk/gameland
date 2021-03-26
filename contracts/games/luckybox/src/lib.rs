@@ -79,6 +79,7 @@ pub struct HumanReadableContractInfo {
     pub play_fee: U128,
     pub current_round: U128,
     pub round_start_height: U64,
+    pub round_start_ts: U64,
     pub round_period: u32,
     pub cur_win_box: u8,
 }
@@ -113,6 +114,7 @@ pub struct Contract {
     pub current_min_box_id: u8,
     // the real endtime is start_height + per_round_last + random
     pub current_round_start_height: BlockHeight,
+    pub current_round_start_ts: u64,
     
 }
 
@@ -149,6 +151,7 @@ impl Contract {
             current_round: 0,
             current_min_box_id: 0,
             current_round_start_height: 0,
+            current_round_start_ts: 0,
         }
     }
 
@@ -253,6 +256,7 @@ impl Contract {
             play_fee: self.play_fee.into(),
             current_round: self.current_round.into(),
             round_start_height: self.current_round_start_height.into(),
+            round_start_ts: self.current_round_start_ts.into(),
             round_period: self.per_round_last,
             cur_win_box: self.current_min_box_id,
         }
