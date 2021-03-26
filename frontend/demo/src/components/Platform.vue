@@ -1,39 +1,28 @@
 <template>
   <div class="plat">
-    <div class="logo-info">
-      <img :src="metadata.logo_url" alt="" width="20px" height="20px">
-      <div class="logo-right">
-        <div class="logo-name">{{metadata.name}}</div>
-        <div class="version">v{{metadata.version}}</div>
+    <div class="plat-left">
+      <div class="logo">
+        <img src="../assets/img/logo.png" alt="">
+      </div>
+      <div class="info">
+        <div class="plat-name">
+          <div class="plat-version">v{{metadata.version}}</div>
+          {{metadata.name}}
+        </div>
+        <div class="plat-desc">{{metadata.description}}</div>
       </div>
     </div>
-    <div class="descripton">{{metadata.description}}</div>
-    <div class="btn-wrap">
-      <button v-b-modal.modal-1>平台状态</button>
-      <button v-b-modal.modal-2>平台政策</button>
+    <div class="plat-right">
+      <button>平台状态</button>
+      <button>平台政策</button>
     </div>
-
-    <b-modal id="modal-1" title="平台状态" hide-footer>
-      <p>用户人数: <span>{{contractInfo.account_num}}</span></p>
-      <p>入驻游戏: <span>{{contractInfo.shop_num}}</span></p>
-      <p>游戏币投放: <span>{{contractInfo.total_supply | nearToNum}}</span></p>
-      <p>抵押规模: <span>{{contractInfo.total_collateral | nearToNum}}</span></p>
-      <p>平台盈利: <span>{{contractInfo.sudoer_profit | nearToNum}}</span></p>
-    </b-modal>
-
-    <b-modal id="modal-2" title="平台政策" hide-footer>
-      <p>币价: <span>{{contractInfo.mint_price}}</span></p>
-      <p>游戏费: <span>{{getSudoer(contractInfo.sudoer_fee_play, contractInfo.shop_fee_play)}}</span></p>
-      <p>赢家税: <span>{{getSudoer(contractInfo.sudoer_fee_win, contractInfo.shop_fee_win)}}</span></p>
-      <p>铸币费: <span>{{getSudoer(contractInfo.burn_ratio)}}</span></p>
-      <p>平台归属: <span>{{contractInfo.owner}}</span></p>
-    </b-modal>
   </div>
 </template>
 
 <script>
 export default {
   created () {
+    console.log(this.metadata)
     this.getMetadata()
   },
   props: {
@@ -65,6 +54,7 @@ export default {
   methods: {
     async getMetadata () {
       const metadata = await window.contract_platform.metadata()
+      console.log(metadata)
       this.metadata = metadata
     }
   }
@@ -72,8 +62,54 @@ export default {
 </script>
 
 <style scoped>
-.plat .logo-info {
+.plat {
+  color: #fff;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+.plat .plat-left {
   display: flex;
   align-items: center;
+}
+.plat .plat-left .logo {
+  margin-right: 10px;
+}
+.plat .plat-left .info .plat-name .plat-version {
+  right: 0;
+  top: 0;
+  transform: translate(110%, -10%);
+  box-shadow: 2px 2px 5px 2px rgb(32, 32, 32);
+  position: absolute;
+  line-height: 15px;
+  padding: 0 5px;
+  height: 15px;
+  color: #000;
+  font-size: 12px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 3px 3px 3px 0;
+}
+.plat .plat-left .info .plat-name {
+  padding-top: 5px;
+  display: inline-block;
+  position: relative;
+  font-size: 20px;
+  font-weight: 500;
+}
+.plat .plat-left .info .plat-desc {
+  font-size: 14px;
+  color: #d9d9d9;
+}
+.plat .plat-right {
+  width: 200px;
+  justify-content: space-around;
+  display: flex;
+  align-items: flex-end;
+}
+.plat .plat-right button {
+  color: #fff;
+  background-color: transparent;
+  border: none;
 }
 </style>

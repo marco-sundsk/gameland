@@ -1,44 +1,22 @@
 <template>
   <div class="index">
-    <div class="bg-dark">
-      <b-navbar class="container py-3" type="dark">
+    <div class="header">
+      <b-navbar class="container" type="dark">
         <!-- 平台元信息 -->
-        <div class="col-md-4 nav-item">
+        <div class="col-6 nav-item">
           <platform :contractInfo="contractInfo"></platform>
         </div>
         <!-- 用户信息 -->
-        <div class="col-md-4 nav-item">
+        <!-- <div class="col-md-4 nav-item">
           <user-block :contractInfo="contractInfo" :currentUser="currentUser"></user-block>
-        </div>
-
-        <!-- <div class="col-md-3">
-          <form v-on:submit.prevent="buyDice" class="shadow mt-1">
-            <fieldset ref="fieldset" class="pt-1">
-              <div class="pb-1">
-                <span class="text-white">Spend </span>
-                <select name="rollCount" v-model="rollCount" id="roll" class="ml-2 mr-2">
-                  <option value="1" selected="selected">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                  <option value="10">10</option>
-                  <option value="50">50</option>
-                </select>
-                <span class="text-white"> Near</span>
-                <button id="buy_dice" class="btn btn-danger btn-sm ml-2">
-                  Buy GPT
-                </button>
-              </div>
-            </fieldset>
-          </form>
         </div> -->
 
-        <div class="col-md-4 nav-item">
-          <b-navbar-nav>
-            <button class="btn btn-info" v-on:click="logout" v-show="isSignedIn">
+        <div class="col-6 nav-item">
+          <b-navbar-nav class="sign">
+            <!-- <button class="btn btn-info" v-on:click="logout" v-show="isSignedIn">
               Sign Out
-            </button>
+            </button> -->
+            <user-block :contractInfo="contractInfo" :currentUser="currentUser" v-show="isSignedIn"></user-block>
             <button class="btn btn-info" v-on:click="login" v-show="!isSignedIn">
               Sign In
             </button>
@@ -46,8 +24,18 @@
         </div>
       </b-navbar>
     </div>
+    <!-- 游戏信息 -->
     <div class="game">
       <game-list></game-list>
+    </div>
+    <!-- 注册一栏 -->
+    <div class="register-wrap">
+      <div class="register-message">Game Zone 小游戏正在公测中，注册账号免费获得xxxx游戏币赶快来试试吧</div>
+      <button class="register">马上注册</button>
+    </div>
+    <!-- footer -->
+    <div class="footer">
+      <footers></footers>
     </div>
   </div>
 </template>
@@ -58,6 +46,7 @@ import { login,logout } from "../utils"
 import UserBlock from '../components/UserBlock'
 import Platform from '../components/Platform'
 import GameList from '../components/GameList'
+import Footers from '../components/Footer'
 
 const nearConfig = getConfig("development")
 window.networkId = nearConfig.networkId;
@@ -72,7 +61,8 @@ export default {
   components: {
     UserBlock,
     Platform,
-    GameList
+    GameList,
+    Footers
   },
   data () {
     return {
@@ -105,11 +95,42 @@ export default {
 </script>
 
 <style scoped>
-.index .bg-dark{
+.index .header {
+  background: url('../assets/img/header-bg.png') no-repeat;
+  height: 120px;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+}
+.index .header{
   color: #fff;
 }
-.bg-dark .container .nav-item {
+.index .header .sign {
   display: flex;
+  justify-content: flex-end;
+}
+.index .register-wrap {
+  height: 120px;
+  background-color: #f5f7fd;
+  display: flex;
+  width: 100%;
   justify-content: center;
+  align-items: center;
+}
+.index .register-wrap .register-message {
+  color: #7c818e;
+  font-size: 16px;
+  margin-right: 30px;
+}
+.index .register-wrap .register {
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  background-color: #2967c5;
+  width: 172px;
+  height: 49px;
+  line-height: 49px;
+  text-align: center;
+  border-radius: 3px;
 }
 </style>

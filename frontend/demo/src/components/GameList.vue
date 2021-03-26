@@ -1,20 +1,22 @@
 <template>
-  <div class="game-list">
-    <b-list-group horizontal>
-      <b-list-group-item v-for="(item, index) in groupItem" :key="index">
-        <div class="game-info">
-          <div class="game-logo">
-            <img :src="item.logo_url" alt="" width="20px" height="20px">
-          </div>
-          <div class="game-version">v{{item.version}}</div>
-        </div>
-        <div class="game-thumb">
-          <img :src="item.thumb_url" :title="item.description" alt="" width="200px" height="200px" @click="goPlay(item)">
-        </div>
-        <div class="pub-state">{{item.pubState}}</div>
-        <div class="user-state">{{item.userState}}</div>
-      </b-list-group-item>
-    </b-list-group>
+  <div class="game">
+    <div class="game-left">
+      <div class="game-left-title">
+        热门小游戏
+      </div>
+      <div class="game-left-desc">
+        轻量，有趣，随时随地，理性杀时间小游戏
+      </div>
+      <div class="game-left-see">
+        <button>
+          <span>
+            <img src="../assets/img/demo-more-icon.png" alt="">
+            See all demos
+          </span>
+        </button>
+      </div>
+    </div>
+    <div class="game-list"></div>
   </div>
 </template>
 
@@ -66,31 +68,40 @@ export default {
 </script>
 
 <style scoped>
-.game-list .list-group-item {
-  flex: none;
-  max-width: 500px;
-  width: 80vw;
-  height: 300px;
-  margin: 0 50px 50px;
+.game {
+  max-width: 1600px;
+  box-sizing: border-box;
+  padding: 112px 0 120px;
 }
-.game-list .list-group {
-  display: flex;
-  width: 100%;
-  background-color: skyblue;
-  justify-content: space-around;
-  flex-wrap: nowrap;
-  overflow: auto;
-  padding: 30px;
+.game .game-left {
+  padding: 0 100px;
 }
-.game-list .list-group-item .game-info {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.game .game-left .game-left-title {
+  font-size: 34px;
+  color: #58627c;
+  margin-bottom: 16px;
 }
-.game-list .list-group-item .game-thumb {
+.game .game-left .game-left-desc {
+  color: #58627c;
+  font-size: 14px;
+}
+.game .game-left .game-left-see {
+  padding-top: 80px;
+}
+.game .game-left .game-left-see button {
+  color: #e8edfa;
+  font-size: 14px;
+  background-color: #000;
+  border-radius: 5px;
+  border: none;
+  width: 172px;
+  height: 45px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.game .game-left .game-left-see button img {
+  vertical-align: baseline;
+  margin-right: 10px;
 }
 </style>
