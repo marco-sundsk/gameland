@@ -35,7 +35,8 @@ impl GameMetadataProvider for Contract {
     }
 
     fn gl_user_state(&self, user_id: ValidAccountId) -> String {
-        format!("under construction", )
+        let user: AccountId = user_id.into();
+        format!("Welcome {}", user)
     }
 
 }

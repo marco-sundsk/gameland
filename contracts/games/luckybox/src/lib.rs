@@ -9,7 +9,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::wee_alloc;
 use near_sdk::json_types::{U64, U128, ValidAccountId};
-use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::serde::{Serialize};
 use near_sdk::{env, near_bindgen, AccountId, Balance, BlockHeight, Promise};
 use near_sdk::collections::{Vector, UnorderedMap};
 use std::collections::HashMap;
@@ -17,7 +17,7 @@ use uint::construct_uint;
 
 pub use crate::gl_metadata::*;
 pub use crate::gl_core::*;
-use crate::internal::*;
+// use crate::internal::*;
 
 mod gl_metadata;
 mod gl_core;

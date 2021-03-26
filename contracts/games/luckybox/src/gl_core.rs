@@ -1,6 +1,5 @@
 use crate::*;
-use near_sdk::json_types::ValidAccountId;
-use near_sdk::{ext_contract, Gas, PromiseResult, PromiseOrValue};
+use near_sdk::{ext_contract, Gas, PromiseOrValue};
 
 const TOKEN_CONTRACT: &str = "playtoken.testnet";
 
@@ -74,38 +73,31 @@ impl GameLandCore for Contract {
         let amount: u128 = amount.into();
         if amount < self.play_fee {
             return PromiseOrValue::Value(String::from("Insufficient coin inserted."));
-            // return ext_self::notice_error(
-            //     "Insufficient coin inserted.".to_string(),
-            //     &env::current_account_id(),
-            //     NO_DEPOSIT,
-            //     env::prepaid_gas() - GAS_FOR_BASIC,
-            // );
         }
 
         // see if user choose valid box
         let guess: u8 = op.parse::<u8>().unwrap_or(0);
         if guess == 0 || guess > self.box_count {
             return PromiseOrValue::Value(String::from("Invalid box id."));
-            // return ext_self::notice_error(
-            //     "Invalid box id.".to_string(),
-            //     &env::current_account_id(),
-            //     NO_DEPOSIT,
-            //     env::prepaid_gas() - GAS_FOR_BASIC,
-            // );
         } 
 
         // see if this round ended already
         let (round_end, winners) = self.internal_settle(); 
         if round_end {
-            // TODO: Distribute reward to each one in winners,
+            // Distribute reward to each one in winners,
             // should use batch_rewards interface of token contract
+            let receivers: HashMap<AccountId, U128> = winners.keys().map(
+                |key| (key.clone(), winners.get(key).unwrap().clone().into())
+            ).collect::<HashMap<_,_>>();
+            ext_play_token::reward_coin_multiple(
+                receivers,
+                &String::from(TOKEN_CONTRACT),
+                NO_DEPOSIT,
+                env::prepaid_gas() - GAS_FOR_BASIC,
+            );
+
             return PromiseOrValue::Value(String::from("Round end."));
-            // return ext_self::notice_error(
-            //     "Round end.".to_string(),
-            //     &env::current_account_id(),
-            //     NO_DEPOSIT,
-            //     env::prepaid_gas() - GAS_FOR_BASIC,
-            // );
+ 
         }
 
         ext_play_token::insert_coin(
@@ -135,11 +127,20 @@ impl GameLandCore for Contract {
     fn gl_settle(&mut self, op: String) -> String {
         let (round_end, winners) = self.internal_settle(); 
         if round_end {
-            // TODO: Distribute reward to each one in winners,
+            // Distribute reward to each one in winners,
             // should use batch_rewards interface of token contract
-            format!("round end.")
+            let receivers: HashMap<AccountId, U128> = winners.keys().map(
+                |key| (key.clone(), winners.get(key).unwrap().clone().into())
+            ).collect::<HashMap<_,_>>();
+            ext_play_token::reward_coin_multiple(
+                receivers,
+                &String::from(TOKEN_CONTRACT),
+                NO_DEPOSIT,
+                env::prepaid_gas() - GAS_FOR_BASIC,
+            );
+            format!("round end. op is {}", op)
         } else {
-            String::from("Still in round.")
+            format!("Still in round. op is {}", op)
         }
         
     }
