@@ -3,7 +3,5 @@ res/*.wasm
 target
 **/target/
 **/pkg/
-**/*.txt
-**/account.txt
-.cargo/
 
+.cargo/

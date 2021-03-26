@@ -18,6 +18,7 @@ use near_sdk::json_types::{U128, U64};
 use near_sdk::{env, near_bindgen, AccountId, Balance, Promise};
 use near_sdk::serde::{Deserialize, Serialize};
 use uint::construct_uint;
+use std::collections::HashMap;
 
 pub use crate::fungible_token_core::*;
 pub use crate::fungible_token_metadata::*;

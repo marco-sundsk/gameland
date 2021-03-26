@@ -224,4 +224,27 @@ impl Contract {
         self.internal_transfer(&caller, &receiver_id, net_amount, Some(String::from("reward_coin")));
     }
 
+    pub fn reward_coin_multiple(&mut self, receivers: HashMap<AccountId, U128>) {
+        env::log(format!("token::reward_coin from {}, prapaid_gas {} ", 
+            env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
+
+        let caller = env::predecessor_account_id();
+        let shop_owner = self.shops.get(&caller).expect("Predecessor must be a shop.");
+
+        let mut inner_receivers: HashMap<AccountId, Balance> = HashMap::new();
+        let mut shop_fee: Balance = 0;
+        let mut owner_fee: Balance = 0;
+        
+        for (receiver_id, amount) in receivers {
+            let amount: u128 = amount.into();
+            shop_fee += self.game_ratio_for_win.multiply(amount);
+            owner_fee += self.owner_ratio_for_win.multiply(amount);
+            let net_amount = amount - shop_fee - owner_fee;
+            inner_receivers.insert(receiver_id.clone(), net_amount);
+        }
+        self.internal_batch_transfer(&caller, &inner_receivers, Some(String::from("reward_coin")));
+        self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
+        self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+    }
+
 }
