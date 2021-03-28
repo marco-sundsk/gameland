@@ -124,7 +124,7 @@ impl Contract {
 
     pub(crate) fn assert_sudoers(&self) {
         if env::predecessor_account_id() != self.owner_id 
-        || env::predecessor_account_id() != self.sudoer_id {
+        && env::predecessor_account_id() != self.sudoer_id {
             env::panic(b"only sudoers are allowed!");
         }
     }
