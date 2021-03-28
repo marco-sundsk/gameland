@@ -15,7 +15,7 @@ export GAMEID=dicemaster.testnet
 ## Look around
 ```shell
 # return playground info
-near view $CONTRACTID get_contract_info ''
+near view $GAMEID get_contract_info ''
 # return winner tip rate
 near view $CONTRACTID get_reward_fee_fraction ''
 # return win history list
@@ -43,27 +43,23 @@ Before you compile this code, you will need to install Rust with [correct target
 
 ```shell
 # building it
-srouce ./build.sh
+source ./build.sh
 ```
 
 ```shell
-# dev-deploy or deploy it
-near dev-deploy res/neardice.wasm
+# deploy it
+near deploy $GAMEID res/dicemaster.wasm --account_id=$GAMEID
 
 # say it was deploy at $CONTRACTID, then init it 
-near call $CONTRACTID new \
-  '{"owner_id": "boss.testnet", "dice_number": 1, 
-  "rolling_fee": "1000000000000000000000000", 
-  "reward_fee_fraction": {"numerator": 5, "denominator": 100}}' \
-  --account_id=$CONTRACTID
-```
+near call $GAMEID new \
+  '{"owner_id": "humeng.testnet", 
+  "min_bet": "1000000000000000000000000", 
+  "max_bet": "10000000000000000000000000"}' \
+  --account_id=$GAMEID
 
-```shell
-# last step to open the playgroud is 
-# to deposit to the jackpod the very first time
-near call $CONTRACTID deposit_jackpod '' --amount=50 --account_id=boss.testnet
-```
+# sponsor jackpot
 
+```
 
 Exploring The Code
 ==================

@@ -69,6 +69,7 @@ impl GameLandCore for Contract {
     fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String> {
         env::log(format!("game::gl_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
+        self.gl_play_count += 1;
         // see if bet amount is valid
         let amount: u128 = amount.into();
         if amount < self.min_bet || amount > self.max_bet {
@@ -133,6 +134,8 @@ impl GameLandCore for Contract {
         let result = self.internal_play(&player, net_amount, &bet_info);
         let reward: u128 = result.reward_amount.into();
         if reward > 0 {
+            self.gl_winner_count += 1;
+            self.gl_reward_sum += reward;
             ext_play_token::reward_coin(
                 player.clone(),
                 result.reward_amount,

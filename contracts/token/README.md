@@ -40,21 +40,14 @@ near deploy $GAMECOINID res/play_token.wasm --account_id=$GAMECOINID
 near call $GAMECOINID new '{"owner_id": "humeng.testnet", "sudoer_id": "gameland.testnet"}' --account_id=$GAMECOINID
 
 # adjust fee
-near call $GAMECOINID update_fee_ratio '{"category": "shop_fee_play", "ratio": {"numerator": 0, "denominator": 1000}}' --account_id=$GAMECOINID
+near call $GAMECOINID update_fee_ratio '{"category": "shop_fee_play", "ratio": {"numerator": 0, "denominator": 1000}}' --account_id=humeng.testnet
 
 near call $GAMECOINID update_fee_ratio \
   '{"category": "sudoer_fee_play", 
   "ratio": {"numerator": 0, "denominator": 1000}}' \
-  --account_id=$GAMECOINID
+  --account_id=humeng.testnet
 
 ```
-
-```shell
-# last step to open the playgroud is 
-# to deposit to the jackpod the very first time
-near call $CONTRACTID deposit_jackpod '' --amount=50 --account_id=boss.testnet
-```
-
 
 Exploring The Code
 ==================
