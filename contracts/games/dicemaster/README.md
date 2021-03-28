@@ -1,15 +1,15 @@
-NCD-GroupA-Demo Smart Contract
+DiceMaster Smart Contract
 ==================
 
-A demo contract for NCD Pojrect Phase-1.
+A dice game for gameland.
 
 Play with this contract
 ========================
-the contract is deployed at testnet with the name `dev-1614240595058-5266655`
+the contract is deployed at testnet with the name `dicemaster.testnet`
 
 you can set it to env for later use:
 ```shell
-export CONTRACTID=dev-1614240595058-5266655
+export GAMEID=dicemaster.testnet
 ```
 
 ## Look around

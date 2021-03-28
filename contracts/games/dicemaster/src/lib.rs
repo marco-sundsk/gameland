@@ -1,5 +1,5 @@
 /*
- * This is GameLand_Dice contract:
+ * This is DiceMaster contract:
  * 
  * 
  *
@@ -11,12 +11,12 @@ use near_sdk::wee_alloc;
 use near_sdk::json_types::{U64, U128, ValidAccountId};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{env, near_bindgen, AccountId, Balance, BlockHeight, Promise};
-use near_sdk::collections::{Vector, LookupMap};
+use near_sdk::collections::{Vector};
 use uint::construct_uint;
 
 pub use crate::gl_metadata::*;
 pub use crate::gl_core::*;
-use crate::internal::*;
+// use crate::internal::*;
 
 mod gl_metadata;
 mod gl_core;
@@ -31,10 +31,22 @@ construct_uint! {
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+#[derive(Serialize, Deserialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct BetInfo {
+    // 1 - big/small, 2 - even/odd, 3 - weitou, 4 - quantou, 5 - composition, 6 - double-dice
+    pub category: u8,
+    pub guess1: u8,  // 1: odd or big, 2: even or small, N for other categories
+    pub guess2: u8,  // used in category 5: composition
+    pub guess3: u8,  // reserve for future use
+}
+
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct WinnerInfo {
     pub user: AccountId,  // winner
-    pub amount: Balance, // win prize
+    pub category: u8,  // game category: 
+    pub odds: u8,  // bet * odds = reward
+    pub reward: Balance, 
     pub height: BlockHeight,
     pub ts: u64,
 }
@@ -43,7 +55,9 @@ pub struct WinnerInfo {
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadableWinnerInfo {
     pub user: AccountId,
-    pub amount: U128,
+    pub category: u8,
+    pub odds: u8,
+    pub reward: U128,
     pub height: U64,
     pub ts: U64,
 }
@@ -52,21 +66,21 @@ pub struct HumanReadableWinnerInfo {
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadableContractInfo {
     pub owner: AccountId,
-    pub jack_pod: U128,
-    pub dice_number: u8,
-    pub rolling_fee: U128,
+    pub jackpot: U128,
+    pub min_bet: U128,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
 pub struct HumanReadableDiceResult {
     pub user: AccountId,
-    pub user_guess: u8,
-    pub dice_point: u8,
+    pub dice_point: Vec<u8>,
     pub reward_amount: U128,
-    pub jackpod_left: U128,
+    pub jackpot_left: U128,
     pub height: U64,
     pub ts: U64,
+    pub ret_code: u8,
+    pub reason: String,
 }
 
 // Structs in Rust are similar to other languages, and may include impl keyword as shown below
@@ -74,16 +88,20 @@ pub struct HumanReadableDiceResult {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
+    pub gl_play_count: u128,
+    pub gl_winner_count: u128,
+    pub gl_reward_sum: Balance,
+
     pub owner_id: AccountId,
-    pub dice_number: u8,
-    pub rolling_fee: Balance,  // how many token needed to roll once.
-    pub jack_pod: Balance,  // half of them would be show to user as jack_pod amount
+    pub min_bet: Balance,  // the minimum token needed to play once.
+    pub max_bet: Balance,
+    pub jackpot: Balance,  
     pub win_history: Vector<WinnerInfo>,
 }
 
 impl Default for Contract {
     fn default() -> Self {
-        env::panic(b"dice contract should be initialized before usage")
+        env::panic(b"This contract should be initialized before usage")
     }
 }
 
@@ -91,11 +109,7 @@ impl Default for Contract {
 impl Contract {
 
     #[init]
-    pub fn new(
-        owner_id: AccountId,
-        dice_number: u8,
-        rolling_fee: U128,
-    ) -> Self {
+    pub fn new(owner_id: AccountId, min_bet: U128, max_bet: U128) -> Self {
         assert!(!env::state_exists(), "Already initialized");
         assert!(
             env::is_valid_account_id(owner_id.as_bytes()),
@@ -103,10 +117,13 @@ impl Contract {
         );
         
         Self {
+            gl_play_count: 0,
+            gl_winner_count: 0,
+            gl_reward_sum: 0,
             owner_id,
-            dice_number,
-            rolling_fee: rolling_fee.into(),
-            jack_pod: 0_u128,
+            min_bet: min_bet.into(),
+            max_bet: max_bet.into(),
+            jackpot: 0_u128,
             win_history: Vector::new(b"w".to_vec()),
         }
     }
@@ -123,14 +140,9 @@ impl Contract {
         );
     }
     
-    pub fn update_dice_number(&mut self, dice_number: u8) {
+    pub fn update_min_bet(&mut self, min_bet: U128) {
         self.assert_owner();
-        self.dice_number = dice_number;
-    }
-
-    pub fn update_rolling_fee(&mut self, rolling_fee: U128) {
-        self.assert_owner();
-        self.rolling_fee = rolling_fee.into();
+        self.min_bet = min_bet.into();
     }
 
     //***********************/
@@ -141,7 +153,9 @@ impl Contract {
         let info = self.win_history.get(index).expect("Error: no this item in winner history!");
         HumanReadableWinnerInfo {
             user: info.user.clone(),
-            amount: info.amount.into(),
+            category: info.category,
+            odds: info.odds,
+            reward: info.reward.into(),
             height: info.height.into(),
             ts: info.ts.into(),
         }
@@ -158,9 +172,8 @@ impl Contract {
     pub fn get_contract_info(&self) -> HumanReadableContractInfo {
         HumanReadableContractInfo {
             owner: self.owner_id.clone(),
-            jack_pod: self.jack_pod.into(),
-            dice_number: self.dice_number,
-            rolling_fee: self.rolling_fee.into(),
+            jackpot: self.jackpot.into(),
+            min_bet: self.min_bet.into(),
         }
     }
 

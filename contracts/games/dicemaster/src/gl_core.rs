@@ -1,10 +1,10 @@
 use crate::*;
-use near_sdk::json_types::ValidAccountId;
-use near_sdk::{ext_contract, Gas, PromiseResult, PromiseOrValue};
+
+use near_sdk::{ext_contract, Gas, PromiseOrValue};
 
 const TOKEN_CONTRACT: &str = "playtoken.testnet";
 
-const GAS_FOR_BASIC: Gas = 10_000_000_000_000;
+const GAS_FOR_BASIC: Gas = 20_000_000_000_000;
 
 
 const NO_DEPOSIT: Balance = 0;
@@ -62,15 +62,30 @@ impl GameLandCore for Contract {
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         let amount: u128 = amount.into();
         let sponsor = env::signer_account_id();
-        self.jack_pod += amount;
-        format!("{} sponsored {}, jackpod increase to {}, ", sponsor, amount, self.jack_pod)
+        self.jackpot += amount;
+        format!("{} sponsored {}, jackpot increase to {}, ", sponsor, amount, self.jackpot)
     }
 
     fn gl_play(&mut self, amount: U128, op: String) -> PromiseOrValue<String> {
         env::log(format!("game::gl_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
+        // see if bet amount is valid
+        let amount: u128 = amount.into();
+        if amount < self.min_bet || amount > self.max_bet {
+            return PromiseOrValue::Value("Invalid bet amount".to_string());
+        }
+        // see if category is valid
+        let bet_info: BetInfo = near_sdk::serde_json::from_str(&op).unwrap();
+        if bet_info.category < 1 || bet_info.category > 6 {
+            return PromiseOrValue::Value("Invailid category".to_string());
+        }
+        // see if jackpot can support the bet amount
+        if self.jackpot / 5 < self.internal_max_reward(amount, &bet_info) {
+            return PromiseOrValue::Value("Overflow on bet amount".to_string());
+        }
+
         ext_play_token::insert_coin(
-            amount,
+            amount.into(),
             op,
             &String::from(TOKEN_CONTRACT),
             NO_DEPOSIT,
@@ -81,11 +96,41 @@ impl GameLandCore for Contract {
     fn gl_on_play(&mut self, gross_amount: U128, net_amount: U128, op: String) -> String {
         env::log(format!("game::gl_on_play from {}, prapaid_gas {} ", 
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
-
+        
+        let gross_amount: u128 = gross_amount.into();
+        let net_amount: u128 = net_amount.into();
         let player = env::signer_account_id();
 
-        let guess = op.parse::<u8>().unwrap_or(0);
-        let result = self.internal_play(&player, gross_amount.into(), net_amount.into(), guess);
+        self.jackpot += net_amount;
+
+        // recheck that jackpot can support max reward
+        let bet_info: BetInfo = near_sdk::serde_json::from_str(&op).unwrap();
+        if self.jackpot / 5 < self.internal_max_reward(gross_amount, &bet_info) {
+            env::log(format!("Overflow on bet amount, refund bet amount.").as_bytes());
+            ext_play_token::reward_coin(
+                player.clone(),
+                gross_amount.into(),
+                &String::from(TOKEN_CONTRACT),
+                NO_DEPOSIT,
+                GAS_FOR_BASIC,
+            );
+            // this is small probability event, and not player's fault,
+            // so return all bet amount including play commission fee
+            self.jackpot -= gross_amount;
+            let result = HumanReadableDiceResult {
+                user: player.clone(),
+                dice_point: vec![0,0,0],
+                reward_amount: 0.into(),  
+                jackpot_left: self.jackpot.into(),
+                height: env::block_index().into(),
+                ts: env::block_timestamp().into(),
+                ret_code: 1,
+                reason: String::from("Overflow on bet amount, refund bet amount"),
+            };
+            return near_sdk::serde_json::to_string(&result).unwrap();
+        }
+
+        let result = self.internal_play(&player, net_amount, &bet_info);
         let reward: u128 = result.reward_amount.into();
         if reward > 0 {
             ext_play_token::reward_coin(
@@ -101,7 +146,7 @@ impl GameLandCore for Contract {
     }
 
     fn gl_settle(&mut self, op: String) -> String {
-        String::from("Not applicable in this game.")
+        format!("Not applicable in this game, op is {}", op)
     }
 
 }
