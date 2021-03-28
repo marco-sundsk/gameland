@@ -103,22 +103,29 @@ impl Contract {
 
     /// palyer names two numbers, if these nubmers appear in dices, then win. 
     fn internal_judge_5(&self, bet_info: &BetInfo, dices: &Vec<u8>) -> u8 {
-
-        let exist1 = dices.iter().find(|&&x| x == bet_info.guess1 );
-        let exist2 = dices.iter().find(|&&x| x == bet_info.guess2 );
-
-        if exist1 != None && exist2 != None {
-            5
-        } else {
-            0
+        // if two numbers are different, judge like this
+        if bet_info.guess1 != bet_info.guess2 {
+            let exist1 = dices.iter().find(|&&x| x == bet_info.guess1 );
+            let exist2 = dices.iter().find(|&&x| x == bet_info.guess2 );
+            if exist1 != None && exist2 != None {
+                5
+            } else {
+                0
+            }
+        } else {  // two same number, should appear at least twice in dices
+            let exists = dices.iter().filter(|&&x| x == bet_info.guess1).map(|x| *x).collect::<Vec<u8>>();
+            if exists.len() >= 2 {
+                5
+            } else {
+                0
+            }
         }
+        
     }
 
     /// player names one number, if this number appears more than twice in dices, then win.
     fn internal_judge_6(&self, bet_info: &BetInfo, dices: &Vec<u8>) -> u8 {
-
         let exists = dices.iter().filter(|&&x| x == bet_info.guess1).map(|x| *x).collect::<Vec<u8>>();
-
         if exists.len() >= 2 {
             8
         } else {
