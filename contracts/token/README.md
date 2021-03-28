@@ -1,38 +1,26 @@
-NCD-GroupA-Demo Smart Contract
+Play Token Contract
 ==================
 
-A demo contract for NCD Pojrect Phase-1.
+A token contract for gameland platform.
 
 Play with this contract
 ========================
-the contract is deployed at testnet with the name `dev-1614240595058-5266655`
+the contract is deployed at testnet with the name `playtoken.testnet`
 
 you can set it to env for later use:
 ```shell
-export CONTRACTID=dev-1614240595058-5266655
+export GAMECOINID=playtoken.testnet
 ```
 
 ## Look around
 ```shell
-# return playground info
-near view $CONTRACTID get_contract_info ''
-# return winner tip rate
-near view $CONTRACTID get_reward_fee_fraction ''
-# return win history list
-near view $CONTRACTID get_win_history '{"from_index": 0, "limit": 100}'
-# return dice count that alice has
-near view $CONTRACTID get_account_dice_count '{"account_id": "alice.testnet"}'
+# return info
+near view $GAMECOINID get_contract_info ''
+
 ```
 ## Let's play
 ```shell
-# attached 3 Near to buy 3 dices
-near call $CONTRACTID buy_dice '' --amount=3 --account_id=alice.testnet
-#check user's dice, would return 3 here
-near view $CONTRACTID get_account_dice_count '{"account_id": "alice.testnet"}'
-# roll dice 3 times, say how luck you are
-near call $CONTRACTID roll_dice '{"target": 1}' --account_id=alice.testnet
-near call $CONTRACTID roll_dice '{"target": 3}' --account_id=alice.testnet
-near call $CONTRACTID roll_dice '{"target": 4}' --account_id=alice.testnet
+
 ```
 
 Build Deploy and Init
@@ -47,15 +35,18 @@ srouce ./build.sh
 ```
 
 ```shell
-# dev-deploy or deploy it
-near dev-deploy res/neardice.wasm
+# deploy and init it
+near deploy $GAMECOINID res/play_token.wasm --account_id=$GAMECOINID
+near call $GAMECOINID new '{"owner_id": "humeng.testnet", "sudoer_id": "gameland.testnet"}' --account_id=$GAMECOINID
 
-# say it was deploy at $CONTRACTID, then init it 
-near call $CONTRACTID new \
-  '{"owner_id": "boss.testnet", "dice_number": 1, 
-  "rolling_fee": "1000000000000000000000000", 
-  "reward_fee_fraction": {"numerator": 5, "denominator": 100}}' \
-  --account_id=$CONTRACTID
+# adjust fee
+near call $GAMECOINID update_fee_ratio '{"category": "shop_fee_play", "ratio": {"numerator": 0, "denominator": 1000}}' --account_id=$GAMECOINID
+
+near call $GAMECOINID update_fee_ratio \
+  '{"category": "sudoer_fee_play", 
+  "ratio": {"numerator": 0, "denominator": 1000}}' \
+  --account_id=$GAMECOINID
+
 ```
 
 ```shell
