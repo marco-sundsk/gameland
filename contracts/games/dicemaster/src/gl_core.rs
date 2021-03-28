@@ -71,18 +71,31 @@ impl GameLandCore for Contract {
             env::predecessor_account_id(), env::prepaid_gas()).as_bytes());
         self.gl_play_count += 1;
         // see if bet amount is valid
+        let mut result = HumanReadableDiceResult {
+            user: env::signer_account_id(),
+            dice_point: vec![0,0,0],
+            reward_amount: 0.into(),  
+            jackpot_left: self.jackpot.into(),
+            height: env::block_index().into(),
+            ts: env::block_timestamp().into(),
+            ret_code: 1,
+            reason: String::from(""),
+        };
         let amount: u128 = amount.into();
         if amount < self.min_bet || amount > self.max_bet {
-            return PromiseOrValue::Value("Invalid bet amount".to_string());
+            result.reason = "Invalid bet amount".to_string();
+            return PromiseOrValue::Value(near_sdk::serde_json::to_string(&result).unwrap());
         }
         // see if category is valid
         let bet_info: BetInfo = near_sdk::serde_json::from_str(&op).unwrap();
         if bet_info.category < 1 || bet_info.category > 6 {
-            return PromiseOrValue::Value("Invailid category".to_string());
+            result.reason = "Invailid category".to_string();
+            return PromiseOrValue::Value(near_sdk::serde_json::to_string(&result).unwrap());
         }
         // see if jackpot can support the bet amount
         if self.jackpot / 5 < self.internal_max_reward(amount, &bet_info) {
-            return PromiseOrValue::Value("Overflow on bet amount".to_string());
+            result.reason = "Overflow on bet amount".to_string();
+            return PromiseOrValue::Value(near_sdk::serde_json::to_string(&result).unwrap());
         }
 
         ext_play_token::insert_coin(
