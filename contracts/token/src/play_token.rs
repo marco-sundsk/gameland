@@ -1,7 +1,7 @@
 use crate::*;
 use near_sdk::{ext_contract, Gas};
 
-const GAS_FOR_BASIC: Gas = 10_000_000_000_000;
+const GAS_FOR_BASIC: Gas = 20_000_000_000_000;
 const NO_DEPOSIT: Balance = 0;
 
 #[ext_contract(ext_game)]
@@ -188,8 +188,12 @@ impl Contract {
         let shop_fee = self.game_ratio_for_play.multiply(amount);
         let owner_fee = self.owner_ratio_for_play.multiply(amount);
         let net_amount = amount - shop_fee - owner_fee;
-        self.internal_transfer(&user, &self.owner_id.clone(), owner_fee, Some(String::from("owner_fee")));
-        self.internal_transfer(&user, &shop_owner, shop_fee, Some(String::from("shop_fee")));
+        if shop_fee > 0 {
+            self.internal_transfer(&user, &shop_owner, shop_fee, Some(String::from("shop_fee")));
+        }
+        if owner_fee > 0 {
+            self.internal_transfer(&user, &self.owner_id.clone(), owner_fee, Some(String::from("owner_fee")));
+        }
         self.internal_transfer(&user, &caller, net_amount, Some(String::from("insert_coin")));
 
         env::log(format!("token::insert_coin from {}, prapaid_gas {} ", 
@@ -200,7 +204,7 @@ impl Contract {
             op,
             &caller,
             NO_DEPOSIT,
-            env::prepaid_gas() - 2 * GAS_FOR_BASIC,
+            env::prepaid_gas() - GAS_FOR_BASIC,
         )
     }
 
@@ -219,8 +223,12 @@ impl Contract {
         let shop_fee = self.game_ratio_for_win.multiply(amount);
         let owner_fee = self.owner_ratio_for_win.multiply(amount);
         let net_amount = amount - shop_fee - owner_fee;
-        self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
-        self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        if owner_fee > 0 {
+            self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
+        }
+        if shop_fee > 0 {
+            self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        }
         self.internal_transfer(&caller, &receiver_id, net_amount, Some(String::from("reward_coin")));
     }
 
@@ -243,8 +251,12 @@ impl Contract {
             inner_receivers.insert(receiver_id.clone(), net_amount);
         }
         self.internal_batch_transfer(&caller, &inner_receivers, Some(String::from("reward_coin")));
-        self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
-        self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        if owner_fee > 0 {
+            self.internal_transfer(&caller, &self.owner_id.clone(), owner_fee, Some(String::from("owner_tip")));
+        }
+        if shop_fee > 0 {
+            self.internal_transfer(&caller, &shop_owner, shop_fee, Some(String::from("shop_tip")));
+        }
     }
 
 }
