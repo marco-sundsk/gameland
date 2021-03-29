@@ -3,7 +3,7 @@ DiceMaster Smart Contract
 
 A dice game for gameland.  
 three dices: 
-| category | name | description | PR of win | odds |
+| Category | Name | Description | PR of win | Odds |
 | - | - | - | - | - |
 | 1 | big/small | [3 - 10] vs [11 - 36], except three identical dices | 48.61% | 1:1 |
 | 2 | odd/even | odd vs even, except three identical dices | 48.61% | 1:1 |
