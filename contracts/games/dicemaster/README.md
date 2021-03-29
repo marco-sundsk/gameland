@@ -7,10 +7,10 @@ three dices:
 | - | - | - | - | - |
 | 1 | big/small | [3 - 10] vs [11 - 36], except three identical dices | 48.61% | 1:1 |
 | 2 | odd/even | odd vs even, except three identical dices | 48.61% | 1:1 |
-| 3 | wei-tou | three identical dices and equal to playes's guess | 0.46% | 1:150 |
+| 3 | wei-tou | three identical dices and equal to player's guess | 0.46% | 1:150 |
 | 4 | quan-tou | three identical dices | 2.80% | 1:24 |
-| 5 | composition | player guess two numbers of three dices | 13.90% | 1:5 |
-| 6 | double-dice | player guess one number that appears at least twice | 7.41% | 1:8 |
+| 5 | composition | player guesses two numbers of three dices | 13.90% | 1:5 |
+| 6 | double-dice | player guesses one number that appears at least twice | 7.41% | 1:8 |
 
 
 Play with this contract
