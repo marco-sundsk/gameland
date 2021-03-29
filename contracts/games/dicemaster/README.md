@@ -5,7 +5,7 @@ A dice game for gameland.
 three dices: 
 | Category | Name | Description | PR of win | Odds |
 | - | - | - | - | - |
-| 1 | big/small | [3 - 10] vs [11 - 36], except three identical dices | 48.61% | 1:1 |
+| 1 | big/small | [11 - 36] vs[3 - 10], except three identical dices | 48.61% | 1:1 |
 | 2 | odd/even | odd vs even, except three identical dices | 48.61% | 1:1 |
 | 3 | wei-tou | three identical dices and equal to player's guess | 0.46% | 1:150 |
 | 4 | quan-tou | three identical dices | 2.80% | 1:24 |
