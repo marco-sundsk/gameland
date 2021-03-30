@@ -68,6 +68,7 @@ pub struct HumanReadableContractInfo {
     pub owner: AccountId,
     pub jackpot: U128,
     pub min_bet: U128,
+    pub max_bet: U128,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -174,6 +175,7 @@ impl Contract {
             owner: self.owner_id.clone(),
             jackpot: self.jackpot.into(),
             min_bet: self.min_bet.into(),
+            max_bet: self.max_bet.into(),
         }
     }
 

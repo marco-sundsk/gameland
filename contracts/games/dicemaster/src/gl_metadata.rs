@@ -32,8 +32,8 @@ impl GameMetadataProvider for Contract {
         GameMetadata {
             version: String::from("0.1.0"),
             name: String::from("Dice Master 2"),
-            logo_url: String::from("https://github.com/"),
-            thumb_url: String::from("https://github.com/"),
+            logo_url: String::from("dicemaster.testnet.logo.png"),
+            thumb_url: String::from("dicemaster.testnet.thumb.png"),
             description: String::from("Let's Rolling Dices"),
         }
     }
