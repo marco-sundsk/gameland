@@ -47,7 +47,7 @@ impl GameMetadataProvider for Contract {
     }
 
     fn gl_pub_state(&self) -> String {
-        format!("Current jackpot is {}", self.jackpot)
+        format!("Current jackpot has {} GPT(s).", self.jackpot/1000000000000000000000000)
     }
 
     fn gl_user_state(&self, user_id: ValidAccountId) -> String {

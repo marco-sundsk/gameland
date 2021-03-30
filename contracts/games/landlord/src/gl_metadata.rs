@@ -31,8 +31,8 @@ impl GameMetadataProvider for Contract {
 
     fn gl_pub_state(&self) -> String {
         let remain = self.house_count - self.houses.keys_as_vector().len() as u8;
-        format!("Round #{}, {} houses remain, Current jackpot is {}", 
-            self.current_round, remain, self.jack_pod)
+        format!("Round {}: {} block remain. Current jackpot has {} GPT(s).", 
+            self.current_round, remain, self.jack_pod/1000000000000000000000000)
     }
 
     fn gl_user_state(&self, user_id: ValidAccountId) -> String {
