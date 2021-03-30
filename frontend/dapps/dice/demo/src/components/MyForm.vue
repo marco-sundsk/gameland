@@ -6,7 +6,7 @@
     <!-- type类型判断显示合适内容 -->
     <!-- big类型 -->
     <b-form-radio-group class="row" v-if="type == 'Big'">
-      <label class="col-3">Betfor:</label>
+      <label class="col-3">Bet for:</label>
       <div class="col-1"></div>
       <b-form-radio class="col-3 mr-0" v-model="selected" name="some-radios" value="1">Big</b-form-radio>
       <b-form-radio class="col-3 mr-0" v-model="selected" name="some-radios" value="2">Small</b-form-radio>
@@ -14,7 +14,7 @@
 
     <!-- odd类型 -->
     <b-form-radio-group class="row" v-if="type === 'Odd'">
-      <label class="col-3">Betfor:</label>
+      <label class="col-3">Bet for:</label>
       <div class="col-1"></div>
       <b-form-radio class="col-3 mr-0" v-model="selected" name="some-radios" value="1">Odd</b-form-radio>
       <b-form-radio class="col-3 mr-0" v-model="selected" name="some-radios" value="2">Even</b-form-radio>
@@ -22,7 +22,7 @@
 
     <!-- Specific类型 -->
     <b-form-radio-group class="row" v-if="type === 'Specific'">
-      <label class="col-3">Betfor:</label>
+      <label class="col-3">Bet for:</label>
       <div class="col-1"></div>
       <b-form-select class="col-6" v-model="selected" :options="specificOptions"></b-form-select>
     </b-form-radio-group>
@@ -34,7 +34,7 @@
 
     <!-- Dice 类型 -->
     <b-form-radio-group class="row" v-if="type === 'Dice'">
-      <label class="col-3">Betfor:</label>
+      <label class="col-3">Bet for:</label>
       <div class="col-1"></div>
       <b-form-select class="col-7" v-model="dice1Selected" :options="dice1Options"></b-form-select>
       <div class="col-3"></div>
@@ -44,7 +44,7 @@
 
     <!-- SpecificDbl 类型 -->
     <b-form-radio-group class="row" v-if="type === 'SpecificDbl'">
-      <label class="col-3">Betfor:</label>
+      <label class="col-3">Bet for:</label>
       <div class="col-1"></div>
       <b-form-select class="col-7" v-model="selected" :options="specificDblOptions"></b-form-select>
     </b-form-radio-group>
@@ -56,8 +56,8 @@
       <b-form-input id="inp" class="col-7" v-model="amount"></b-form-input>
     </div>
     <div class="row mt-4">
-      <b-button class="col-6" type="reset" variant="danger">取消投注</b-button>
-      <b-button class="col-6" variant="primary" @click="rollDice">确定投注</b-button>
+      <b-button class="col-6" type="reset" variant="danger">Cancel</b-button>
+      <b-button class="col-6" variant="primary" @click="rollDice">Play</b-button>
     </div>
   </div>
 </template>

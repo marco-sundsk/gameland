@@ -33,7 +33,14 @@
           </button>
         </div>
         <div class="sidebar-body">
-          
+          <b-tabs content-class="mt-3">
+            <b-tab title="我想卖出" active>
+              <div class="tab-title">
+                
+              </div>
+            </b-tab>
+            <b-tab title="我想买入"><p>I'm the second tab</p></b-tab>
+          </b-tabs>        
         </div>
       </template>
     </b-sidebar>
@@ -310,5 +317,14 @@ export default {
   transform: translate(-50%, -50%);
   width: 80%;
   /* margin: 0 auto; */
+}
+.user .b-sidebar .sidebar-body .nav-tabs {
+  border: none;
+}
+.user .b-sidebar .sidebar-body .nav-tabs .nav-item .nav-link{
+  border: none;
+  background-color: transparent;
+  color: #f6c94a;
+  font-weight: 200;
 }
 </style>

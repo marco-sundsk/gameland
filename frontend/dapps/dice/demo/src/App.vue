@@ -6,8 +6,8 @@
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
-            <b-nav-item class="ml-3" href="#"><strong>欢迎： {{accountId}}</strong></b-nav-item>
-            <b-nav-item class="ml-3" href="#"><strong>余额： {{this.formatGPT(this.leftCount)}} GPT(s) </strong></b-nav-item>
+            <b-nav-item class="ml-3" href="#"><strong>Welcome： {{accountId}}</strong></b-nav-item>
+            <b-nav-item class="ml-3" href="#"><strong>You have： {{this.formatGPT(this.leftCount)}} GPT(s) </strong></b-nav-item>
             <!-- <b-nav-item href="#" disabled>Rules</b-nav-item> -->
           </b-navbar-nav>
 

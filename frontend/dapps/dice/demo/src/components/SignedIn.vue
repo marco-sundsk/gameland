@@ -426,4 +426,10 @@ export default {
     color: rgb(222, 235, 45);
     font-size: 30px;
   }
+  .nav-link {
+    color: rgb(190, 202, 24);
+  }
+  .nav-link:hover {
+    color: rgb(190, 197, 96);;
+  }
 </style>
