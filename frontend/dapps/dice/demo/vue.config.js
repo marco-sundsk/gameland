@@ -1,4 +1,4 @@
-const publicPath = './'
+const publicPath = '/'
 module.exports = {
   publicPath,
   devServer: {

@@ -66,6 +66,14 @@ export function logout() {
   window.location.replace(window.location.origin + window.location.pathname)
 }
 
+export async function getShop (shop_id) {
+  let shop = await new Contract(window.walletConnection.account(), shop_id, {
+    // View methods are read only. They don't modify the state, but usually return some value.
+    viewMethods: ['gl_metadata', 'gl_pub_state', 'gl_user_state', 'get_win_history','get_contract_info'],
+  })
+  return shop;
+}
+
 export function login() {
   // Allow the current app to make calls to the specified contract on the
   // user's behalf.

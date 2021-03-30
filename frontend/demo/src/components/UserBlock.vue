@@ -1,7 +1,7 @@
 <template>
   <div class="user">
     <div class="user-info">
-      <div class="user-header">
+      <div class="user-header" v-b-toggle.sidebar-user>
         <img src="../assets/img/icon-user.png" alt="">
       </div>
       <div class="user-name">{{currentUser.accountId}}</div>
@@ -16,6 +16,27 @@
         <img src="../assets//img/icon-logout.png" alt="">
       </button>
     </div>
+
+    <b-sidebar
+      id="sidebar-user"
+      title="Sidebar with backdrop"
+      backdrop-variant="transparent"
+      no-header
+      backdrop
+      shadow
+      right
+    >
+      <template #default="{ hide }">
+        <div class="sidebar-header">
+          <button @click="hide">
+            <img src="../assets/img/icon-close.png" alt="">
+          </button>
+        </div>
+        <div class="sidebar-body">
+          
+        </div>
+      </template>
+    </b-sidebar>
   </div>
 </template>
 
@@ -212,13 +233,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .user {
   display: flex;
   width: 200px;
   /* width: 100%; */
   justify-content: space-around;
   align-items: center;
+  color: #f8ae1c;
 }
 .user .user-info {
   display: flex;
@@ -261,5 +283,32 @@ export default {
   height: 40px;
   border: none;
   background-color: transparent;
+}
+.user .b-sidebar {
+  border-radius: 0px !important;
+  background-color: #2f2f2f !important;
+  color: #f8ae1c !important;
+  text-align: left !important;
+  width: 100%;
+  max-width: 500px !important;
+}
+.user .b-sidebar .sidebar-header {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  padding-top: 20px;
+  padding-right: 20px;
+}
+.user .b-sidebar .sidebar-header button {
+  background-color: transparent;
+  border: none;
+}
+.user .b-sidebar .sidebar-body {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  /* margin: 0 auto; */
 }
 </style>

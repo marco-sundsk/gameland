@@ -111,26 +111,33 @@ export default {
 }
 .index .register-wrap {
   height: 120px;
-  background-color: #f5f7fd;
+  background-color: #494949;
   display: flex;
   width: 100%;
   justify-content: center;
   align-items: center;
 }
 .index .register-wrap .register-message {
-  color: #7c818e;
+  color: #f0e70a;
   font-size: 16px;
   margin-right: 30px;
 }
 .index .register-wrap .register {
-  color: #fff;
+  color: #000;
   font-size: 16px;
   border: none;
-  background-color: #2967c5;
+  background-color: #f6ad33;
   width: 172px;
   height: 49px;
   line-height: 49px;
   text-align: center;
   border-radius: 3px;
+}
+.index button {
+  background-color: #f6ad33;
+  color: #000;
+  border: none;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 </style>

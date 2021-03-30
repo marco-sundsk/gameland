@@ -33,6 +33,11 @@ export async function initContract() {
     changeMethods: ['buy_playtoken', 'sell_playtoken', 'play','sponsor','register_shop', 'resovle_register'],
   })
 
+  window.contract_dice = await new Contract(window.walletConnection.account(), "dicemaster.testnet", {
+    // View methods are read only. They don't modify the state, but usually return some value.
+    viewMethods: ['gl_statistic', 'gl_metadata', 'gl_pub_state', 'gl_user_state', 'get_win_history','get_contract_info'],
+  })
+
   // gamecoin contract
   window.contract_gamecoin = await new Contract(window.walletConnection.account(), "playtoken.testnet", {
     // View methods are read only. They don't modify the state, but usually return some value.

@@ -4,80 +4,162 @@
       <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
     </div>
     <main>
-      <h1 class="shadow py-2" v-show="isSignedIn">
-        Welcome {{ accountId }}, You have {{ this.formatGPT(this.leftCount) }} GPT(s) 
-      </h1>
-
       <div class="contianer">
         <div class="row">
           <div class="col-md-3">
-            <form v-on:submit.prevent="buyDice" class="shadow mt-5 py-4">
-              <fieldset ref="fieldset">
-                <div class="form-group py-3">
-                  <span class="text-white">Spend </span>
-                  <select name="rollCount" v-model="rollCount" id="roll" class="ml-2 mr-2">
-                    <option value="1" selected="selected">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="50">50</option>
-                  </select>
-                  <span class="text-white"> Near</span>
-                  <button id="buy_dice" class="btn btn-danger btn-sm ml-2">
-                    Buy GPT
-                  </button>
-                </div>
-              </fieldset>
-            </form>
-          </div>
-          <div class="col-md-6">
-            <div class="mt-5">
-              <h2 class="text-white text-center">Jackpot:</h2>
-              <p class="text-center"><span class="display-3" style="letter-spacing: 0.5rem">{{jackpot}}</span>GPT</p>
-              <p class="text-center display-4 text-white">Recent Wins</p>
-              <table class="table table-hover" style="border: solid 1px #dee2e6;background: #fff">
+            <form v-on:submit.prevent="buyDice" class="mt-5">
+              <table class="table shadow" style="border: solid 1px #dee2e6; color: #fff; text-align: left;">
                 <thead>
                   <tr>
-                    <th scope="col">Height</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">Prize</th>
-                    <!-- <th scope="col">TS</th> -->
+                    <th scope="col">Type</th>
+                    <!-- <th scope="col">PR</th> -->
+                    <th scope="col">odds</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in winList" :key="item.height">
-                    <th scope="row">{{item.height}}</th>
-                    <td>{{item.user}}</td>
-                    <td><span style="color: green">{{formatAmount(item.amount)}}</span> </td>
-                    <!-- <td>{{item.ts}}</td> -->
+                  <tr>
+                    <td>Big/Small</td>
+                    <td>1:1</td>
+                  </tr>
+                  <tr>
+                    <td>Odd/Even</td>
+                    <td>1:1</td>
+                  </tr>
+                  <tr>
+                    <td>Specific Triples</td>
+                    <td>1:150</td>
+                  </tr>
+                  <tr>
+                    <td>Any Triple</td>
+                    <td>1:24</td>
+                  </tr>
+                  <tr>
+                    <td>Dice Combinations</td>
+                    <td>1:5</td>
+                  </tr>
+                  <tr>
+                    <td>Specific Doubles</td>
+                    <td>1:8</td>
                   </tr>
                 </tbody>
               </table>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <form v-on:submit.prevent="rollDice" class="shadow mt-5 py-4">
-              <fieldset ref="fieldset">
-                <div>
-                  <span class="text-white">Select number to bet</span><br>
-                  <ul>
-                    <li class="number-item"><a :class="active1" @click="chooseNumber(1)">1</a></li>
-                    <li class="number-item"><a :class="active2" @click="chooseNumber(2)">2</a></li>
-                    <li class="number-item"><a :class="active3" @click="chooseNumber(3)">3</a></li>
-                    <li class="number-item"><a :class="active4" @click="chooseNumber(4)">4</a></li>
-                    <li class="number-item"><a :class="active5" @click="chooseNumber(5)">5</a></li>
-                    <li class="number-item"><a :class="active6" @click="chooseNumber(6)">6</a></li>
-                  </ul>
-                  <button id="roll_dice"  class="btn btn-warning btn-sm ml-2 mt-2">
-                    Roll
-                  </button>
-                </div>
-              </fieldset>
             </form>
           </div>
+          <div class="col-md-5">
+            <div class="mt-5">
+              <div class="dice-wrap">
+                <img v-for="(item, index) in dicePoint" :key="index" :src="diceImg(item)" alt="" width="100px">
+                <!-- <img src="../assets/img/6.png" alt="" width="100px">
+                <img src="../assets/img/6.png" alt="" width="100px"> -->
+              </div>
+              <div class="game-over text-center" style="border-bottom: 2px solid #000; min-height: 40px; line-height: 80px; margin-bottom: 40px;">{{gameOver}}</div>
+              <!-- 奖池信息 -->
+              <h2 class="text-white text-center">Jackpot:</h2>
+              <p class="text-center"><span class="display-4" style="letter-spacing: 0.5rem">{{jackpot}}</span>GPT</p>
+              <!-- 统计信息 -->
+              <!-- <div class="row">
+                <div class="col-4">
+                  <h5 class="text-white text-center">players:</h5>
+                  <p class="text-center"><span class="display-4" style="letter-spacing: 0.5rem">{{statistic.play_count}}</span></p>
+                </div>
+                <div class="col-4">
+                  <h5 class="text-white text-center">winners:</h5>
+                  <p class="text-center"><span class="display-4" style="letter-spacing: 0.5rem">{{statistic.winner_count}}</span></p>
+                </div>
+                <div class="col-4">
+                  <h5 class="text-white text-center">rewarded:</h5>
+                  <p class="text-center"><span class="display-4" style="letter-spacing: 0.5rem">{{statistic.reward_sum | nearToNum(0)}}</span></p>
+                </div>
+              </div> -->
+
+              
+            </div>
+          </div>
+          <div class="col-md-4">
+            <b-form v-on:submit.prevent="rollDice" class="shadow mt-5">
+
+              <b-tabs pills card>
+                <!-- 类型1 -->
+                <b-tab title="Big/Small" active>
+                  <my-form
+                    @rollDice="rollDice"
+                    title="The total score will be from 11 to 17 (inclusive) for big, from 4 to 10 (inclusive) for small, with the exception of a triple"
+                    type="Big"
+                    category="1"
+                  >
+                  </my-form>
+                </b-tab>
+                <!-- 类型2 -->
+                <b-tab title="Odd/Even">
+                  <my-form
+                    @rollDice="rollDice"
+                    type="Odd"
+                    title="The total score will be an odd/even number with the exception of a triple"
+                    category="2"
+                  ></my-form>
+                </b-tab>
+
+                <b-tab title="Specific Triples">
+                  <my-form
+                    @rollDice="rollDice" 
+                    title="A specific number will appear on all three dice"
+                    type="Specific"
+                    category="3"
+                  ></my-form>
+                </b-tab>
+
+                <b-tab title="Any Triple">
+                  <my-form
+                    @rollDice="rollDice"
+                    title="Any of the triples will appear"
+                    type="Any"
+                    category="4"
+                  ></my-form>
+                </b-tab>
+
+                <b-tab title="Dice Combinations">
+                  <my-form
+                    @rollDice="rollDice"
+                    title="Two of the dice will show a specific combination of two different numbers (for example, a 3 and a 4)"
+                    type="Dice"
+                    category="5"
+                  ></my-form>
+                </b-tab>
+
+                <b-tab title="Specific Doubles">
+                  <my-form
+                    @rollDice="rollDice"
+                    title="A specific number will appear on at least two of the three dice"
+                    type="SpecificDbl"
+                    category="6"
+                  ></my-form>
+                </b-tab>
+              </b-tabs>
+            </b-form>
+          </div>
         </div>
+        <p class="text-center display-4 text-white">Recent Wins</p>
+        <table class="table table-hover col-8" style="border: solid 1px #dee2e6;background: #fff; margin: 0 auto;">
+          <thead>
+            <tr>
+              <th scope="col">time</th>
+              <th scope="col">category</th>
+              <th scope="col">player</th>
+              <th scope="col">odds</th>
+              <th scope="col">reward</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in winList" :key="item.height">
+              <th scope="row">{{item.ts | changeTime}}</th>
+              <td>{{categoryToString(item.category)}}</td>
+              <td>{{item.user}}</td>
+              <td>{{item.odds}}</td>
+              <td><span style="color: green">{{item.reward | nearToNum(2)}}</span> </td>
+              <!-- <td>{{item.ts}}</td> -->
+            </tr>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
@@ -87,6 +169,7 @@
 import { logout } from "../utils";
 // Import component
 import Loading from 'vue-loading-overlay';
+import MyForm from './MyForm'
 // Import stylesheet
 import 'vue-loading-overlay/dist/vue-loading.css';
 
@@ -94,7 +177,8 @@ export default {
   name: "SignedIn",
 
   components: {
-    Loading
+    Loading,
+    MyForm
   },
   data: function () {
     return {
@@ -115,7 +199,11 @@ export default {
       active5: "",
       active6: "",
       isLoading: false,
-      fullPage: true
+      fullPage: true,
+      selected: '',
+      statistic: {},
+      dicePoint: [6, 6, 6],
+      gameOver: ''
     };
   },
 
@@ -123,6 +211,7 @@ export default {
     this.getLeftCount()
     this.getWinHistory()
     this.getContactInfo()
+    // this.getStatistic()
   },
 
   computed: {
@@ -140,60 +229,37 @@ export default {
     networkId() {
       return window.networkId;
     },
+    diceImg () {
+      return item => {
+        return require(`../assets/img/${item}.png`)
+      }
+    },
+    categoryToString () {
+      return item => {
+        switch (item) {
+        case 1:
+          return 'Big/Small'
+        case 2:
+          return 'Odd/Even'
+        case 3:
+          return 'Specific Triples'
+        case 4:
+          return 'Any Triple'
+        case 5:
+          return 'Dice Combinations'
+        case 6:
+          return 'Specific Doubles'
+        default :
+          return null
+        }
+      }
+    }
   },
 
   methods: {
-    chooseNumber(num) {
-      console.log(num)
-      this.rollNumber = num
-      if (num==1) {
-        this.active1 = 'active'
-        this.active2 = ''
-        this.active3 = ''
-        this.active4 = ''
-        this.active5 = ''
-        this.active6 = ''
-      }
-      if (num==2) {
-        this.active1 = ''
-        this.active2 = 'active'
-        this.active3 = ''
-        this.active4 = ''
-        this.active5 = ''
-        this.active6 = ''
-      }
-      if (num==3) {
-        this.active1 = ''
-        this.active2 = ''
-        this.active3 = 'active'
-        this.active4 = ''
-        this.active5 = ''
-        this.active6 = ''
-      }
-      if (num==4) {
-        this.active1 = ''
-        this.active2 = ''
-        this.active3 = ''
-        this.active4 = 'active'
-        this.active5 = ''
-        this.active6 = ''
-      }
-      if (num==5) {
-        this.active1 = ''
-        this.active2 = ''
-        this.active3 = ''
-        this.active4 = ''
-        this.active5 = 'active'
-        this.active6 = ''
-      }
-      if (num==6) {
-        this.active1 = ''
-        this.active2 = ''
-        this.active3 = ''
-        this.active4 = ''
-        this.active5 = ''
-        this.active6 = 'active'
-      }
+    async getStatistic () {
+      const statistic = await window.contract_dice.gl_statistic()
+      this.statistic = statistic
     },
     getLeftCount() {
       // get user gamecoin balance
@@ -201,7 +267,6 @@ export default {
         .ft_balance_of({ account_id: window.accountId })
         .then((leftCount) => {
           this.leftCount = leftCount;
-          console.log('query gamecoin balance OK, return' + this.leftCount);
         });
     },
     showDice: function (num) {
@@ -234,7 +299,7 @@ export default {
       }
     },
 
-    rollDice: async function () {
+    rollDice: async function (category, amount, guess1 = 0, guess2 = 0) {
       if(!this.isSignedIn){
         alert('Please Sign In')
         return
@@ -245,57 +310,61 @@ export default {
         return
       }
 
-      this.isLoading = true;
+      this.isLoading = true
       // disable the form while the value gets updated on-chain
-      this.$refs.fieldset.disabled = true;
+      // this.$refs.fieldset.disabled = true;
 
       try {
         // make an update call to the smart contract
         await window.contract_platform
           .play({
-            shop_id: "neardice.testnet",
-            amount: "1000000000000000000000000",
-            op: "" + this.rollNumber,
+            shop_id: 'dicemaster.testnet',
+            amount: amount,
+            op: `{\"category\": ${category}, \"guess1\": ${guess1}, \"guess2\": ${guess2}, \"guess3\": 0}`,
           },
           this.gas,
           0)
           .then((result) => {
-            this.isLoading = false;
-            this.getLeftCount();
-            this.getWinHistory();
-
-            console.log(result);
-
-            const res = JSON.parse(result);
-            // parse res and do following
-            if (res.dice_point === res.user_guess) {
-              const reward_amount = this.formatAmount(res.reward_amount);
-              alert("Congratulations to you, you win " + reward_amount + ' GPT!');
+            this.isLoading = false
+            const res = JSON.parse(result)
+            if (res.ret_code != 0) {
+              this.gameOver = res.reason
+              return
+            }else if (res.reward_amount != '0') {
+              this.gameOver = 'You win ' + this.formatAmount(res.reward_amount)
             } else {
-              alert("You lose, the number is " + res.dice_point);
+              this.gameOver = 'You lose'
             }
-            this.jackpot = this.formatAmount(res.jackpod_left);
+            this.getLeftCount()
+            this.getWinHistory()
+            this.$emit('getLeftCount')
+            
+            this.dicePoint = res.dice_point
+            console.log(res)
+            // parse res and do following
+      
+            this.jackpot = this.formatAmount(res.jackpot_left)
 
           });
       } catch (e) {
         console.log(e); //re-throw
       } finally {
         // re-enable the form, whether the call succeeded or failed
-        this.$refs.fieldset.disabled = false;
+        // this.$refs.fieldset.disabled = false;
       }
     },
 
     getWinHistory: async function () {
       try {
         // make an update call to the smart contract
-        await window.contract_game
+        await window.contract_dice
           .get_win_history({
             from_index: 0,
             limit: 20,
           })
           .then((res) => {
-            this.winList = res;
-            console.log(res);
+            console.log(res)
+            this.winList = res
           });
       } catch (e) {
         console.log(e); //re-throw
@@ -305,11 +374,10 @@ export default {
     getContactInfo: async function () {
       try {
         // make an update call to the smart contract
-        await window.contract_game
+        await window.contract_dice
           .get_contract_info({})
           .then((res) => {
-            this.jackpot = this.formatAmount(res.jack_pod);
-            console.log(res);
+            this.jackpot = this.formatAmount(res.jackpot);
           });
       } catch (e) {
         console.log(e); //re-throw
@@ -326,7 +394,6 @@ export default {
       const float_part = temp_amount.substr(int_part.length, 4);
       return int_part + "." +float_part;
     },
-    
     formatGPT: function (amount) {
       const amount_str = amount.toString();
       if (amount_str.length < 20) {
@@ -348,3 +415,15 @@ export default {
   },
 };
 </script>
+
+<style>
+  .dice-wrap {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+  }
+  .game-over {
+    color: rgb(222, 235, 45);
+    font-size: 30px;
+  }
+</style>

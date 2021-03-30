@@ -34,3 +34,6 @@
 .number-item a:hover {
 	cursor: pointer;
 }
+body {
+	background-color: #2f2f2f !important;
+}

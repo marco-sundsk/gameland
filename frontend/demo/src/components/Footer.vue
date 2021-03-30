@@ -5,7 +5,7 @@
         <!-- 底部左侧 -->
         <div class="footer-top-left">
           <div class="footer-header">
-            <img src="../assets/img/logo-white.png" alt="">
+            <img src="../assets/img/logo.png" alt="">
             <span>Game Zone</span>
           </div>
           <div class="footer-desc">
@@ -63,7 +63,7 @@
 
 <style scoped>
   .footer {
-    color: #acadae;
+    color: #f6c94a;
     font-size: 14px;
   }
   .footer-container {
@@ -78,7 +78,7 @@
     height: 362px;
     display: flex;
     justify-content: center;
-    background: url('../assets/img/footer-top-bg.png') no-repeat;
+    background: url('../assets/img/bg-footer-top.png') no-repeat;
     background-size: cover;
   }
   .footer .footer-top .footer-top-left {
@@ -88,7 +88,7 @@
     margin-bottom: 21px;
     font-size: 20px;
     font-weight: 500;
-    color: #fff;
+    color: #f8ae1c;
   }
   .footer .footer-top .footer-top-left .footer-header img {
     margin-right: 17px;
@@ -118,17 +118,18 @@
     background: url('../assets/img/footer-menu-top-line4.png') no-repeat left top;
   }
   .footer .footer-top .footer-top-right dt {
-    color: #fff;
+    color: #f8ae1c;
     font-weight: 300;
     margin-bottom: 24px;
   }
   .footer .footer-top .footer-top-right dd {
+    font-weight: 200;
     cursor: pointer;
   }
   .footer .footer-bottom {
-    background-color: #2f2f2f;
+    background-color: #000;
     height: 71px;
-    color: #acadae;
+    color: #f8ae1c;
     font-size: 12px;
   }
   .footer .footer-bottom .footer-container {
