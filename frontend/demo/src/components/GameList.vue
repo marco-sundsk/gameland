@@ -34,6 +34,7 @@
 
 <script>
 import { getShop } from '../utils.js'
+
 export default {
   created () {
     this.getGameList()
@@ -80,10 +81,9 @@ export default {
       }
     },
     goPlay (item) {
-      
       const origin = window.location.origin
       // window.open('https://www.baidu.com')
-      window.open(origin + '/' + item.shop_id)
+      window.open(origin + '/' + item.shopId)
     }
   }
 }
@@ -140,6 +140,9 @@ export default {
 }
 .game .game-list .game-wrap {
   width: 350px;
+}
+.game .game-list .game-wrap .game-logo img {
+  cursor: pointer;
 }
 .game .game-list .game-wrap .game-name {
   font-size: 20px;

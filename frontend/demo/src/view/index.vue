@@ -16,7 +16,7 @@
             <!-- <button class="btn btn-info" v-on:click="logout" v-show="isSignedIn">
               Sign Out
             </button> -->
-            <user-block :contractInfo="contractInfo" :currentUser="currentUser" v-show="isSignedIn"></user-block>
+            <user-block @logout="logout" :contractInfo="contractInfo" :currentUser="currentUser" @updateUser="updateUser" v-show="isSignedIn"></user-block>
             <button class="btn btn-info" v-on:click="login" v-show="!isSignedIn">
               Sign In
             </button>

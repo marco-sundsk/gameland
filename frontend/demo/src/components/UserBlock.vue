@@ -1,5 +1,11 @@
 <template>
   <div class="user">
+    <div class="vld-parent">
+      <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="true">
+        <template #overlay>
+        </template>
+      </loading>
+    </div>
     <div class="user-info">
       <div class="user-header" v-b-toggle.sidebar-user>
         <img src="../assets/img/icon-user.png" alt="">
@@ -12,7 +18,7 @@
       </button>
     </div>
     <div class="logout">
-      <button>
+      <button @click="logout">
         <img src="../assets//img/icon-logout.png" alt="">
       </button>
     </div>
@@ -25,6 +31,7 @@
       backdrop
       shadow
       right
+      :visible="isBuySidebar"
     >
       <template #default="{ hide }">
         <div class="sidebar-header">
@@ -33,13 +40,60 @@
           </button>
         </div>
         <div class="sidebar-body">
+          <div style="line-height: 40px;">您的NEAR余额为：{{currentUser.balance | nearToNum}}</div>
+          <div style="line-height: 40px;">您的游戏余额为：{{gptBalance | nearToNum}} GPT</div>
           <b-tabs content-class="mt-3">
-            <b-tab title="我想卖出" active>
+            <b-tab v-if="!tabShow" @click="showTab" title="我想卖出》" active>
               <div class="tab-title">
-                
+                买入Gpt
+              </div>
+              <div class="tab-info">
+                <div class="left">当前GPT买价：{{getMintPrice}} NEAR</div>
+              </div>
+              <form ref="buyForm">
+                <b-form-group
+                  label-for="buy"
+                  invalid-feedback="NEAR is required"
+                  :state="buyState"
+                >
+                  <b-form-input id="buy" placeholder="请输入NEAR币金额" v-model="buyNear" required @input="buyNearInp"></b-form-input>
+                </b-form-group>
+
+              </form>
+              <!-- <b-form-input type="text" placeholder="请输入NEAR币金额" v-model="buyNear"  @input="buyNearInp"> -->
+              <div class="convert">可兑换的GPT数额：<span>{{buyGpt}}</span></div>
+              <div class="button-wrap">
+                <button @click="buyHandleSubmit">确认购买</button>
+                <button @click="hide">取消购买</button>
               </div>
             </b-tab>
-            <b-tab title="我想买入"><p>I'm the second tab</p></b-tab>
+
+            <b-tab v-else @click="showTab" title="我想买入》">
+              <div class="tab-title">
+                卖出Gpt
+              </div>
+              <div class="tab-info">
+                <div class="left">当前GPT卖价：{{getMintPrice}} NEAR</div>
+                <!-- <div class="right">您的游戏余额为：{{gptBalance | nearToNum}} GPT</div> -->
+              </div>
+              <form ref="sellForm">
+                <b-form-group
+                  label-for="sell"
+                  invalid-feedback="GPT is required"
+                  :state="sellState"
+                >
+                  <b-form-input id="sell" placeholder="请输入游戏币金额" v-model="sellGpt" @input="sellGptInp" required></b-form-input>
+  
+                </b-form-group>
+
+              </form>
+              <!-- <b-form-input type="text" placeholder="请输入游戏币金额" v-model="sellGpt" @input="sellGptInp"> -->
+              <div class="convert">可兑换的NEAR数额：<span>{{sellNear}}</span></div>
+              <div class="button-wrap">
+                <button @click="sellHandleSubmit">确认卖出</button>
+                <button @click="hide">取消卖出</button>
+              </div>
+            </b-tab>
           </b-tabs>        
         </div>
       </template>
@@ -48,8 +102,18 @@
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay';
+// Import stylesheet
+import 'vue-loading-overlay/dist/vue-loading.css';
 export default {
+  components: {
+    Loading
+  },
   created () {
+    if (window.localStorage.getItem('sidebarFlag')) {
+      window.localStorage.removeItem('sidebarFlag')
+      this.isBuySidebar = true
+    }
     this.getGptBalance()
   },
   props: {
@@ -62,6 +126,9 @@ export default {
   },
   data () {
     return {
+      isBuySidebar: false,
+      isLoading: false,
+      tabShow: false,
       gas: Math.pow(10, 14).toString(),
       buyState: null,
       submittedNames: [],
@@ -78,8 +145,20 @@ export default {
     }
   },
   computed: {
+    getMintPrice () {
+      return (this.contractInfo.mint_price / 1000)
+    }
   },
   methods: {
+    logout () {
+      this.$emit('logout')
+    },
+    updateUser () {
+      this.$emit('updateUser')
+    },
+    showTab () {
+      this.tabShow = !this.tabShow
+    },
     toNear (num) {
       const ratio = '000000000000000000000000'
       if (num === '0') return '0'
@@ -94,18 +173,35 @@ export default {
         return num + ratio
       }
     },
-    async buyPlayToken (num) {
-      await window.contract_platform.buy_playtoken(
-        {},
-        this.gas,
-        this.toNear(num)
-      )
+    async buyPlayToken () {
+      try {
+        this.isLoading = true
+        window.localStorage.setItem('sidebarFlag', true)
+        await window.contract_platform.buy_playtoken(
+          {},
+          this.gas,
+          this.toNear(this.buyNear)
+        )
+        this.isLoading = false
+      } catch (err) {
+        this.isLoading = false
+        console.error(err)
+      }
     },
-    async sellPlayToken (num) {
-      await window.contract_platform.sell_playtoken(
-        { amount: this.toNear(num) },
-        this.gas
-      )
+    async sellPlayToken () {
+      try {
+        this.isLoading = true
+        await window.contract_platform.sell_playtoken(
+          { amount: this.toNear(this.sellGpt) },
+          this.gas
+        )
+        this.updateUser()
+        this.getGptBalance()
+        this.isLoading = false
+      } catch (err) {
+        this.isLoading = false
+        console.error(err)
+      }
     },
     buyNearInp (value) {
       if (value) {
@@ -162,17 +258,6 @@ export default {
       this.sellNear = ''
       this.sellState = null  
     },
-    buyHandleOk(bvModalEvt) {
-      // Prevent modal from closing
-      bvModalEvt.preventDefault()
-      // Trigger submit handler
-      this.buyHandleSubmit()
-    },
-    sellHandleOk (bvModalEvt) {
-      bvModalEvt.preventDefault()
-      // Trigger submit handler
-      this.sellHandleSubmit()
-    },
     buyHandleSubmit () {
       // Exit when the form isn't valid
       if (!this.checkFormValidity('buyForm')) {
@@ -181,9 +266,6 @@ export default {
       // Push the name to submitted names
       this.buyPlayToken(this.buyNear)
       // Hide the modal manually
-      this.$nextTick(() => {
-        this.$bvModal.hide('modal-buy')
-      })
     },
     async sellHandleSubmit () {
       if (!this.checkFormValidity('sellForm')) {
@@ -193,8 +275,7 @@ export default {
       await this.sellPlayToken(this.sellGpt)
       // Hide the modal manually
       this.$nextTick(() => {
-        this.$bvModal.hide('modal-sell')
-        this.$parent.$parent.updateUser()
+        this.updateUser()
         this.getGptBalance()
       })
     },
@@ -319,12 +400,80 @@ export default {
   /* margin: 0 auto; */
 }
 .user .b-sidebar .sidebar-body .nav-tabs {
+  display: block;
   border: none;
 }
+.user .b-sidebar .sidebar-body .nav-tabs .nav-item {
+  padding: 0;
+  float: right;
+}
 .user .b-sidebar .sidebar-body .nav-tabs .nav-item .nav-link{
+  padding: 0;
   border: none;
   background-color: transparent;
   color: #f6c94a;
   font-weight: 200;
+}
+.user .b-sidebar .sidebar-body .tab-title {
+  font-size: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #f8ae1c;
+}
+.user .b-sidebar .sidebar-body .tab-info {
+  display: flex;
+  height: 30px;
+  align-items: center;
+}
+.user .b-sidebar .sidebar-body .tab-info .left {
+  font-weight: 200;
+  font-size: 12px;
+  padding-right: 10px;
+}
+.user .b-sidebar .sidebar-body .tab-info .right {
+  font-size: 12px;
+}
+.user .b-sidebar .sidebar-body input {
+  margin-top: 30px;
+  width: 100%;
+  height: 60px;
+  border: #f8ae1c 1px solid;
+  background-color: #f7c9493b;
+  padding: 20px;
+  color: #f8ae1c;
+  font-weight: 300;
+}
+.user .b-sidebar .sidebar-body input::-webkit-input-placeholder {
+  color: #f8ae1c !important;
+}
+.user .b-sidebar .sidebar-body .convert {
+  font-weight: 300;
+  line-height: 50px;
+  font-size: 16px;
+}
+.user .b-sidebar .sidebar-body .convert span {
+  font-weight: 500;
+}
+
+.user .b-sidebar .sidebar-body .button-wrap {
+  padding-top: 50px;
+  display: flex;
+  width: 75%;
+  justify-content: space-around;
+  margin: 0 auto;
+}
+
+.user .b-sidebar .sidebar-body .button-wrap button {
+  background-color: #f8ae1c;
+  color: #000;
+  border: none;
+  width: 120px;
+  height: 40px;
+  border-radius: 3px;
+  font-weight: 500;
+  font-size: 18px;
+}
+.user .b-sidebar .sidebar-body .button-wrap button:nth-of-type(2) {
+  background-color: #fee9c1;
+  font-weight: 300;
 }
 </style>
