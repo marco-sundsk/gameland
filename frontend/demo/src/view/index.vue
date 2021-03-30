@@ -54,7 +54,9 @@ window.networkId = nearConfig.networkId;
 export default {
   name: "App",
   created() {
-    this.currentUser = window.currentUser
+    if (window.currentUser) {
+      this.currentUser = window.currentUser
+    }
     this.getContractInfo()
     document.title = "GAMELAND - NEARDICE"
   },
@@ -68,7 +70,10 @@ export default {
     return {
       rollCount: 1,
       contractInfo: {},
-      currentUser: ''
+      currentUser: {
+        accountId: '',
+        balance: ''
+      }
     }
   },
   computed: {

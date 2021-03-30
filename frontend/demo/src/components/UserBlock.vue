@@ -40,7 +40,7 @@
           </button>
         </div>
         <div class="sidebar-body">
-          <div style="line-height: 40px;">您的NEAR余额为：{{currentUser.balance | nearToNum}}</div>
+          <div style="line-height: 40px;">您的NEAR余额为：{{currentUser.balance | nearToNum}} NEAR</div>
           <div style="line-height: 40px;">您的游戏余额为：{{gptBalance | nearToNum}} GPT</div>
           <b-tabs content-class="mt-3">
             <b-tab v-if="!tabShow" @click="showTab" title="我想卖出》" active>
@@ -114,7 +114,9 @@ export default {
       window.localStorage.removeItem('sidebarFlag')
       this.isBuySidebar = true
     }
-    this.getGptBalance()
+    if (window.walletConnection.isSignedIn()) {
+      this.getGptBalance()
+    }
   },
   props: {
     contractInfo: {

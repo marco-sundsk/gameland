@@ -73,6 +73,9 @@ export default {
             gameInfo.shopId = shop_id
             gameList.push(gameInfo)
           })
+          gameList.sort((a, b) => {
+            return a.name.charCodeAt(0) - b.name.charCodeAt(0)
+          })
           this.groupItem = gameList
           console.log(gameList)
         }
