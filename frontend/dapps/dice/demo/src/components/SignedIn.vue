@@ -331,7 +331,9 @@ export default {
               this.gameOver = res.reason
               return
             }else if (res.reward_amount != '0') {
-              this.gameOver = 'HEY! You got me. Award you ' + this.formatAmount(res.reward_amount - res.bet_amount) + 'GPT.'
+              this.gameOver = 'HEY! You got me. Award you ' 
+              + ((this.regularU128(res.reward_amount) - this.regularU128(res.bet_amount))/10**8).toString() 
+              + 'GPT.'
             } else {
               this.gameOver = 'Oops, you missed, let's try again.'
             }
@@ -384,6 +386,15 @@ export default {
       }
     },
 
+    regularU128: function (num_u128) {
+      const num_str = num_u128.toString();
+      if (num_str.length <= 16) {
+        return 0;
+      } else {
+        const short_num = num_str.substr(0, num_str.length - 16);
+  	    return parseInt(short_num);
+      }
+    },
     formatAmount: function (amount) {
       const reward_amount = amount.toString();
       const temp_amount = reward_amount.substr(
