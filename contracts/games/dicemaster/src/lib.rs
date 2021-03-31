@@ -76,6 +76,7 @@ pub struct HumanReadableContractInfo {
 pub struct HumanReadableDiceResult {
     pub user: AccountId,
     pub dice_point: Vec<u8>,
+    pub bet_amount: U128,
     pub reward_amount: U128,
     pub jackpot_left: U128,
     pub height: U64,

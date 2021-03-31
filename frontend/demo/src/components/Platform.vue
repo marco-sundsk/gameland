@@ -14,10 +14,10 @@
     </div>
     <div class="plat-right">
       <button v-b-toggle.sidebar-backdrop>
-        平台状态
+        STATUS
         <img src="../assets/img/icon-menu-status.png" alt="">
       </button>
-      <button v-b-toggle.sidebar-contract>平台政策</button>
+      <button v-b-toggle.sidebar-contract>RULES</button>
     </div>
 
     <b-sidebar
@@ -37,33 +37,33 @@
         </div>
         <div class="sidebar-body">
           <div class="body-title">
-            平台状态
+            STATUS
             <img src="../assets/img/icon-menu-status.png" alt="" width="15">
           </div>
           <div class="body-main">
             <p>
               <img src="../assets/img/icon-user.png" alt="">
-              用户人数：{{contractInfo.account_num}}
+              Player registered: {{contractInfo.account_num}}
             </p>
             <p>
               <img src="../assets/img/icon-games.png" alt="">
-              入驻游戏：{{contractInfo.shop_num}}
+              Mini-game hosted: {{contractInfo.shop_num}}
             </p>
             <p>
               <img src="../assets/img/icon-coin.png" alt="">
-              游戏币投放：{{contractInfo.total_supply | nearToNum}}
+              Gamecoin minted: {{contractInfo.total_supply | nearToNum}}
             </p>
             <p>
               <img src="../assets/img/icon-bet-num.png" alt="">
-              抵押规模：{{contractInfo.total_collateral | nearToNum}}
+              Collateral：{{contractInfo.total_collateral | nearToNum}} Near
             </p>
             <p>
               <img src="../assets/img/icon-benifit.png" alt="">
-              平台盈利：{{contractInfo.sudoer_profit | nearToNum}}
+              Zone Profits: {{contractInfo.sudoer_profit | nearToNum}} Near
             </p>
           </div>
           <div class="body-date" style="font-size: 12px; line-height: 30px; font-weight: 200;">
-            截止日期xxxx
+            Note: All data are managed on blockchain.
           </div>
         </div>
       </template>
@@ -86,27 +86,27 @@
         </div>
         <div class="sidebar-body">
           <div class="body-title">
-            平台政策
+            RULES
           </div>
           <div class="body-main">
             <p>
-              币数：{{contractInfo.mint_price}}
+              Gamecoin Price: {{contractInfo.mint_price / 1000}}
             </p>
             <p>
-              游戏费：{{getSudoer(contractInfo.sudoer_fee_play, contractInfo.shop_fee_play)}}
+              Play commission rate: {{getSudoer(contractInfo.sudoer_fee_play, contractInfo.shop_fee_play)}}
             </p>
             <p>
-              赢家税：{{getSudoer(contractInfo.sudoer_fee_win, contractInfo.shop_fee_win)}}
+              Winner commission rate: {{getSudoer(contractInfo.sudoer_fee_win, contractInfo.shop_fee_win)}}
             </p>
             <p>
-              铸币费：{{getSudoer(contractInfo.burn_ratio)}}
+              Gamecoin commission rate: {{getSudoer(contractInfo.burn_ratio)}}
             </p>
             <p>
-              平台归属：{{contractInfo.owner}}
+              Zone owner: {{contractInfo.owner}}
             </p>
           </div>
           <div class="body-date" style="font-size: 12px; line-height: 30px; font-weight: 200;">
-            截止日期xxxx
+            Note: All data are managed on blockchain.
           </div>
         </div>
       </template>

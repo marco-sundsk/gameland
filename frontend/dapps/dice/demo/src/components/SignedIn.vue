@@ -331,9 +331,9 @@ export default {
               this.gameOver = res.reason
               return
             }else if (res.reward_amount != '0') {
-              this.gameOver = 'You win ' + this.formatAmount(res.reward_amount)
+              this.gameOver = 'HEY! You got me. Award you ' + this.formatAmount(res.reward_amount - res.bet_amount) + 'GPT.'
             } else {
-              this.gameOver = 'You lose'
+              this.gameOver = 'Oops, you missed, let's try again.'
             }
             this.getLeftCount()
             this.getWinHistory()

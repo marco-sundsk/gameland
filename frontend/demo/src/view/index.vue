@@ -30,8 +30,8 @@
     </div>
     <!-- 注册一栏 -->
     <div class="register-wrap">
-      <div class="register-message">Game Zone 小游戏正在公测中，注册账号免费获得xxxx游戏币赶快来试试吧</div>
-      <button class="register">马上注册</button>
+      <div class="register-message">Game Zone Open Beta Test, Fill application from to get free game coins.</div>
+      <button class="register">Apply Now</button>
     </div>
     <!-- footer -->
     <div class="footer">
