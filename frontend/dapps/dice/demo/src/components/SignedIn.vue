@@ -335,7 +335,7 @@ export default {
               + ((this.regularU128(res.reward_amount) - this.regularU128(res.bet_amount))/10**8).toString() 
               + 'GPT.';
             } else {
-              this.gameOver = 'Oops, you missed, let's try again.';
+              this.gameOver = 'Oops, you missed, let\'s try again.';
             }
             this.getLeftCount()
             this.getWinHistory()
