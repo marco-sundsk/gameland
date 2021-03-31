@@ -106,11 +106,11 @@ impl Contract {
     //***********************/
     pub fn metadata() -> Metadata {
         Metadata {
-            version: String::from("0.1.0"),
-            name: String::from("Game Land"),
-            logo_url: String::from("https://github.com/"),
-            thumb_url: String::from("https://github.com/"),
-            description: String::from("A platform for small games"),
+            version: String::from("0.1.1"),
+            name: String::from("Game Zone"),
+            logo_url: String::from("gameland.testnet.logo.png"),
+            thumb_url: String::from("gameland.testnet.thumb.png"),
+            description: String::from("A platform for mini-games"),
         }
     }
 
