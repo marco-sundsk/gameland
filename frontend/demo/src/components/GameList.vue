@@ -17,7 +17,7 @@
       </div>
     </div>
     <div class="game-list">
-      <div class="game-wrap" v-for="(item, index) in groupItem" :key="index">
+      <div class="game-wrap" v-for="(item, index) in groupChange(groupItem)" :key="index">
         <div class="game-logo">
           <img :src="getLogoUrl(item.shopId)" alt="" title="description" width="321" height="217" @click="goPlay(item)">
         </div>
@@ -49,6 +49,16 @@ export default {
       return shopId => {
         return 'http://demo.gamezone.network' + '/img/' + shopId + '.thumb.png'
       }
+    },
+    groupChange () {
+      return (list) => {
+        if (list.length == 0) {
+          return []
+        } else {
+          const myList = list.slice().sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0))
+          return myList
+        }
+      }
     }
   },
   methods: {
@@ -72,9 +82,6 @@ export default {
             gameInfo.userState = userState
             gameInfo.shopId = shop_id
             gameList.push(gameInfo)
-          })
-          gameList.sort((a, b) => {
-            return a.name.charCodeAt(0) - b.name.charCodeAt(0)
           })
           this.groupItem = gameList
           console.log(gameList)
