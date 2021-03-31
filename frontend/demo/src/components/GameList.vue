@@ -2,10 +2,10 @@
   <div class="game">
     <div class="game-left">
       <div class="game-left-title">
-        热门小游戏
+        HOT MINI-GAMES
       </div>
       <div class="game-left-desc">
-        轻量，有趣，随时随地，理性杀时间小游戏
+        Lightweight, fun, pastime on chain
       </div>
       <div class="game-left-see">
         <button>
