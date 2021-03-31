@@ -47,7 +47,7 @@ export default {
   computed: {
     getLogoUrl () {
       return shopId => {
-        return 'http://demo.gamezone.network' + '/img/' + shopId + '.thumb.png'
+        return 'http://demo.gamezone.network' + '/dapps-img/' + shopId + '.thumb.png'
       }
     }
   },
