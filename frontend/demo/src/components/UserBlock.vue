@@ -40,15 +40,15 @@
           </button>
         </div>
         <div class="sidebar-body">
-          <div style="line-height: 40px;">您的NEAR余额为：{{currentUser.balance | nearToNum}} NEAR</div>
-          <div style="line-height: 40px;">您的游戏余额为：{{gptBalance | nearToNum}} GPT</div>
+          <div style="line-height: 40px;">NEAR BALANCE: {{currentUser.balance | nearToNum}} NEAR</div>
+          <div style="line-height: 40px;">GAMECOIN BALANCE: {{gptBalance | nearToNum}} GPT</div>
           <b-tabs content-class="mt-3">
-            <b-tab v-if="!tabShow" @click="showTab" title="我想卖出》" active>
+            <b-tab v-if="!tabShow" @click="showTab" title="I wanna return GPT》" active>
               <div class="tab-title">
-                买入Gpt
+                Borrow GPT
               </div>
               <div class="tab-info">
-                <div class="left">当前GPT买价：{{getMintPrice}} NEAR</div>
+                <div class="left">Cur GPT price: {{getMintPrice}} NEAR</div>
               </div>
               <form ref="buyForm">
                 <b-form-group
@@ -56,25 +56,24 @@
                   invalid-feedback="NEAR is required"
                   :state="buyState"
                 >
-                  <b-form-input id="buy" placeholder="请输入NEAR币金额" v-model="buyNear" required @input="buyNearInp"></b-form-input>
+                  <b-form-input id="buy" placeholder="Enter NEAR Amount Here" v-model="buyNear" required @input="buyNearInp"></b-form-input>
                 </b-form-group>
 
               </form>
-              <!-- <b-form-input type="text" placeholder="请输入NEAR币金额" v-model="buyNear"  @input="buyNearInp"> -->
-              <div class="convert">可兑换的GPT数额：<span>{{buyGpt}}</span></div>
+              <!-- <b-form-input type="text" placeholder="Enter NEAR Amount Here" v-model="buyNear"  @input="buyNearInp"> -->
+              <div class="convert"> GPT amount will get: <span>{{buyGpt}}</span></div>
               <div class="button-wrap">
-                <button @click="buyHandleSubmit">确认购买</button>
-                <button @click="hide">取消购买</button>
+                <button @click="buyHandleSubmit">Borrow</button>
+                <button @click="hide">Cancel</button>
               </div>
             </b-tab>
 
-            <b-tab v-else @click="showTab" title="我想买入》">
+            <b-tab v-else @click="showTab" title="I wanna borrow》">
               <div class="tab-title">
-                卖出Gpt
+                Return GPT
               </div>
               <div class="tab-info">
-                <div class="left">当前GPT卖价：{{getMintPrice}} NEAR</div>
-                <!-- <div class="right">您的游戏余额为：{{gptBalance | nearToNum}} GPT</div> -->
+                <div class="left">Cur GPT price: {{getMintPrice}} NEAR</div>
               </div>
               <form ref="sellForm">
                 <b-form-group
@@ -82,16 +81,14 @@
                   invalid-feedback="GPT is required"
                   :state="sellState"
                 >
-                  <b-form-input id="sell" placeholder="请输入游戏币金额" v-model="sellGpt" @input="sellGptInp" required></b-form-input>
-  
+                  <b-form-input id="sell" placeholder="Enter GPT Amount You Wanna Return" v-model="sellGpt" @input="sellGptInp" required></b-form-input>
                 </b-form-group>
 
               </form>
-              <!-- <b-form-input type="text" placeholder="请输入游戏币金额" v-model="sellGpt" @input="sellGptInp"> -->
-              <div class="convert">可兑换的NEAR数额：<span>{{sellNear}}</span></div>
+              <div class="convert">NEAR amount will get: <span>{{sellNear}}</span></div>
               <div class="button-wrap">
-                <button @click="sellHandleSubmit">确认卖出</button>
-                <button @click="hide">取消卖出</button>
+                <button @click="sellHandleSubmit">Return</button>
+                <button @click="hide">Cancel</button>
               </div>
             </b-tab>
           </b-tabs>        
