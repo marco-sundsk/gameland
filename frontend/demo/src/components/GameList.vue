@@ -93,7 +93,7 @@ export default {
     goPlay (item) {
       const origin = window.location.origin
       // window.open('https://www.baidu.com')
-      window.open(origin + '/' + item.shopId)
+      window.location.href = origin + '/' + item.shopId
     }
   }
 }
