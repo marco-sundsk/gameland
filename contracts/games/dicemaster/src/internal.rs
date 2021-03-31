@@ -159,7 +159,7 @@ impl Contract {
                 user: account_id.clone(),
                 category: bet_info.category,
                 odds: odds,
-                reward,
+                reward: reward - bet_amount,
                 height: env::block_index(),
                 ts: env::block_timestamp(),
             });
@@ -168,6 +168,7 @@ impl Contract {
         HumanReadableDiceResult {
             user: account_id.clone(),
             dice_point: vec![dice1, dice2, dice3],
+            bet_amount: bet_amount.into(),
             reward_amount: reward.into(),  
             jackpot_left: self.jackpot.into(),
             height: env::block_index().into(),

@@ -74,6 +74,7 @@ impl GameLandCore for Contract {
         let mut result = HumanReadableDiceResult {
             user: env::signer_account_id(),
             dice_point: vec![0,0,0],
+            bet_amount: amount,
             reward_amount: 0.into(),  
             jackpot_left: self.jackpot.into(),
             height: env::block_index().into(),
@@ -134,6 +135,7 @@ impl GameLandCore for Contract {
             let result = HumanReadableDiceResult {
                 user: player.clone(),
                 dice_point: vec![0,0,0],
+                bet_amount: gross_amount.into(),
                 reward_amount: 0.into(),  
                 jackpot_left: self.jackpot.into(),
                 height: env::block_index().into(),
