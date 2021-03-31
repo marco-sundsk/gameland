@@ -331,11 +331,11 @@ export default {
               this.gameOver = res.reason
               return
             }else if (res.reward_amount != '0') {
-              this.gameOver = 'HEY! You got me. Award you ' 
+              this.gameOver = 'BINGO! Award you ' 
               + ((this.regularU128(res.reward_amount) - this.regularU128(res.bet_amount))/10**8).toString() 
-              + 'GPT.';
+              + ' GPT.';
             } else {
-              this.gameOver = 'Oops, you missed, let\'s try again.';
+              this.gameOver = 'Oops, you missed.';
             }
             this.getLeftCount()
             this.getWinHistory()
