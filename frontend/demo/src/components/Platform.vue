@@ -34,6 +34,11 @@ export default {
     metadata: {
       require: true
     }
+  },
+  methods: {
+    domStop () {
+      this.$emit('domStop')
+    }
   }
 }
 </script>

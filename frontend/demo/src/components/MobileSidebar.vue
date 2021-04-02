@@ -3,14 +3,12 @@
     <b-sidebar
       id="sidebar-mobile"
       title="Sidebar with backdrop"
-      backdrop-variant="transparent"
       no-header
-      backdrop
       shadow
     >
       <template #default="{ hide }">
         <div class="sidebar-header">
-          <button @click="hide">
+          <button @click="deHide(hide)">
             <img src="../assets/img/icon-close.png" alt="">
           </button>
         </div>
@@ -19,16 +17,10 @@
             <div class="main-top">
               <div class="nav-list">
                 <div class="nav-item">
-                  <button>
-                    <img src="../assets/img/icon-home.png" alt="" width="30">
-                    <span>HOME</span>
-                  </button>
-                </div>
-                <div class="nav-item">
                   <button v-b-toggle.sidebar-backdrop>
                     <img src="../assets/img/icon-status.png" alt="" width="30">
                     <span>STATUS</span>
-                    <img src="../assets/img/icon-menu-status.png" alt="" width="20">
+                    <img src="../assets/img/icon-menu-status.png" alt="" width="15">
                   </button>
                 </div>
                 <div class="nav-item">
@@ -85,6 +77,10 @@ export default {
     }
   },
   methods: {
+    deHide (hide) {
+      this.$emit('domMove')
+      hide()
+    },
     logout () {
       this.$emit('logout')
     },
@@ -136,7 +132,7 @@ export default {
   width: 80%;
   border-top: 1px solid #f8ae1c;
   height: 100%;
-  padding: 20px 20px 40px;
+  padding: 10px 10px 80px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -150,7 +146,7 @@ export default {
   color: #f8ae1c;
   display: flex;
   align-items: center;
-  font-size: 20px;
+  font-size: 18px;
 }
 .mobile-sidebar .b-sidebar .sidebar-body .sidebar-main .main-top .nav-list button img {
   margin-right: 10px;
@@ -158,7 +154,7 @@ export default {
 }
 .mobile-sidebar .b-sidebar .sidebar-body .sidebar-main .main-top .nav-list button span {
   text-align: justify;
-  width: 80px;
+  /* width: 70px; */
   display: inline-block;
   text-align-last: justify;
   margin-right: 5px;
@@ -181,7 +177,7 @@ export default {
   font-size: 20px;
 }
 .mobile-sidebar .b-sidebar .sidebar-body .sidebar-main .main-bottom .user-wrap .user-wallet {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
   color: #f6c94a;
   text-align: center;

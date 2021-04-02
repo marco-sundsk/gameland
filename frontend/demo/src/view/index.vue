@@ -22,7 +22,7 @@
       </b-navbar>
 
       <b-navbar v-else class="container" type="dark">
-        <div class="plat-collapse" v-b-toggle.sidebar-mobile>
+        <div class="plat-collapse" v-b-toggle.sidebar-mobile @click="domStop">
           <img src="../assets/img/Icon-menu.png" alt="" width="30px">
         </div>
         <div class="plat-info">
@@ -50,7 +50,7 @@
       <footers :metadata="metadata" :isMobile="isMobile"></footers>
     </div>
     <!-- 交易框 -->
-    <mobile-sidebar @login="login" @logout="logout" :isMobile="isMobile" :currentUser="currentUser" @getGptBalance="getGptBalance" :gptBalance="gptBalance"></mobile-sidebar>
+    <mobile-sidebar @domStop="domStop" @domMove="domMove" @login="login" @logout="logout" :isMobile="isMobile" :currentUser="currentUser" @getGptBalance="getGptBalance" :gptBalance="gptBalance"></mobile-sidebar>
     <business-sidebar :contractInfo="contractInfo" @getGptBalance="getGptBalance" :gptBalance="gptBalance" :currentUser="currentUser" @updateUser="updateUser"></business-sidebar>
     <plat-sidebar :contractInfo="contractInfo"></plat-sidebar>
   </div>
@@ -104,6 +104,14 @@ export default {
     }
   },
   methods: {
+    domStop () {
+      document.documentElement.style.position = 'fixed'
+      document.body.style.overflow = 'hidden'
+    },
+    domMove () {
+      document.documentElement.style.position = 'static'
+      document.body.style.overflow = ''
+    },
     login() {
       login()
     },
