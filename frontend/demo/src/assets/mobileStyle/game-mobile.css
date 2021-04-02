@@ -1,0 +1,105 @@
+.game-mobile {
+  max-width: 1600px;
+  box-sizing: border-box;
+  padding: 20px 0 20px;
+  margin: 0 auto;
+  background-color: #2f2f2f;
+  width: 100%;
+}
+
+.game-mobile .game-left {
+  margin: 0 auto;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.game-mobile .game-left .game-left-title {
+  font-size: 34px;
+  color: #f8ae1c;
+  margin-bottom: 16px;
+}
+
+.game-mobile .game-left .game-left-desc {
+  color: #f6c94a;
+  font-size: 14px;
+}
+
+.game-mobile .game-left .game-left-see {
+  padding-top: 80px;
+}
+
+.game-mobile .game-left .game-left-see button {
+  color: #000;
+  font-size: 14px;
+  background-color: #f8ae1c;
+  border-radius: 5px;
+  border: none;
+  width: 172px;
+  height: 45px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.game-mobile .game-left .game-left-see button img {
+  vertical-align: baseline;
+  margin-right: 10px;
+}
+
+.game-mobile .game-list {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  color: #f6c94a;
+  font-size: 12px;
+}
+
+.game-mobile .game-list .game-wrap {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.game-mobile .game-list .game-wrap .game-logo {
+  display: flex;
+  justify-content: center;
+}
+
+.game-mobile .game-list .game-wrap .game-logo img {
+  cursor: pointer;
+}
+
+.game-mobile .game-list .game-wrap .game-name {
+  font-size: 18px;
+  /* font-weight: 500; */
+  color: #f8ae1c;
+  position: relative;
+  display: inline-block;
+  /* margin-bottom: 5px; */
+  padding-left: 15px;
+  /* line-height: 30px; */
+}
+
+.game-mobile .game-list .game-wrap .game-name .game-version {
+  right: 0;
+  top: 0;
+  transform: translate(120%, 30%);
+  /* box-shadow: 2px 2px 5px 2px rgb(32, 32, 32); */
+  position: absolute;
+  line-height: 15px;
+  padding: 0 5px;
+  height: 15px;
+  color: #000;
+  font-size: 12px;
+  text-align: center;
+  background-color: #fffa37;
+  border-radius: 2px 2px 2px 0;
+}
+
+.game-mobile .game-list .game-wrap .game-message {
+  /* line-height: 20px; */
+  font-size: 12px;
+  padding-left: 25px;
+  box-sizing: border-box;
+}

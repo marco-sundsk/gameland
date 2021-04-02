@@ -1,7 +1,4 @@
-.main {
-	background-image: url('assets/satoshi-dice-background.png') , linear-gradient(to right, rgb(131, 96, 195), rgb(46, 191, 145));
-	background-size: cover;
-}
+
 .shadow {
 	background: rgba(0, 0, 0, 0.2);
     border-radius: 5px;

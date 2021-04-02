@@ -1,18 +1,23 @@
-node_modules/
-build/
-out/
-
 .DS_Store
+node_modules
+/dist
 
-*.log
-**/target/
-*.orig
 
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
 .idea
-
-**/*.rs.bk
-
-neardev
-
-.env*
-dist/
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -1,32 +1,38 @@
 <template>
-  <div class="game">
-    <div class="game-left">
-      <div class="game-left-title">
-        HOT MINI-GAMES
-      </div>
-      <div class="game-left-desc">
-        Lightweight, fun, pastime on chain
-      </div>
-      <div class="game-left-see">
-        <button>
-          <span>
-            <img src="../assets/img/icon-demo-more.png" alt="">
-            See all demos
-          </span>
-        </button>
-      </div>
-    </div>
-    <div class="game-list">
-      <div class="game-wrap" v-for="(item, index) in groupChange(groupItem)" :key="index">
-        <div class="game-logo">
-          <img :src="getLogoUrl(item.shopId)" alt="" title="description" width="321" height="217" @click="goPlay(item)">
+  <div>
+    <div :class="changeStyle">
+      <div class="game-left">
+        <div class="game-left-wrap">
+          <div class="game-left-title">
+            HOT MINI-GAMES
+          </div>
+          <div class="game-left-desc">
+            Lightweight, fun, pastime on chain
+          </div>
+          <div class="game-left-see">
+            <button>
+              <span>
+                <img src="../assets/img/icon-demo-more.png" alt="">
+                See all demos
+              </span>
+            </button>
+          </div>
         </div>
-        <div class="game-name">
-          {{item.name}}
-          <div class="game-version">v{{item.version}}</div>
+      </div>
+      <div class="game-list">
+        <div class="game-list-wrap">
+          <div class="game-wrap" v-for="(item, index) in groupChange(groupItem)" :key="index">
+            <div class="game-logo">
+              <img :src="getLogoUrl(item.shopId)" alt="" title="description" width="321" height="217" @click="goPlay(item)">
+            </div>
+            <div class="game-name">
+              {{item.name}}
+              <div class="game-version">v{{item.version}}</div>
+            </div>
+            <div class="game-message">{{item.pubState}}</div>
+            <div class="game-message">{{item.userState}}</div>
+          </div>
         </div>
-        <div class="game-message">{{item.pubState}}</div>
-        <div class="game-message">{{item.userState}}</div>
       </div>
     </div>
   </div>
@@ -36,8 +42,10 @@
 import { getShop } from '../utils.js'
 
 export default {
-  created () {
-    this.getGameList()
+  props: {
+    isMobile: {
+      require: true
+    }
   },
   data () {
     return {
@@ -59,6 +67,9 @@ export default {
           return myList
         }
       }
+    },
+    changeStyle () {
+      return this.isMobile ? 'game-mobile' : 'game'
     }
   },
   methods: {
@@ -95,11 +106,15 @@ export default {
       // window.open('https://www.baidu.com')
       window.location.href = origin + '/' + item.shopId
     }
+  },
+  created () {
+    this.getGameList()
   }
 }
 </script>
 
 <style scoped>
+@import '../assets/mobileStyle/game-mobile.css';
 .game {
   max-width: 1600px;
   box-sizing: border-box;
@@ -108,10 +123,10 @@ export default {
   background-color: #2f2f2f;
   display: flex;
   width: 100%;
-  /* justify-content: space-between; */
+  justify-content: space-around;
 }
 .game .game-left {
-  padding: 0 100px;
+  margin: 0 100px;
 }
 .game .game-left .game-left-title {
   font-size: 34px;
@@ -142,8 +157,12 @@ export default {
   margin-right: 10px;
 }
 .game .game-list {
-  display: flex;
   flex: 1;
+}
+.game .game-list .game-list-wrap{
+  overflow: auto;
+  display: flex;
+  width: 100%;
   justify-content: space-around;
   color: #f6c94a;
   font-size: 12px;
