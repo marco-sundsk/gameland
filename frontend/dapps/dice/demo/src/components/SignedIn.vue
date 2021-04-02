@@ -1,12 +1,12 @@
 <template>
   <div>
     <div class="vld-parent">
-      <loading :active.sync="isLoading" :can-cancel="true" :is-full-page="fullPage"></loading>
+      <loading :active.sync="isLoading" :is-full-page="fullPage"></loading>
     </div>
     <main>
       <div class="contianer">
         <div class="row">
-          <div class="col-md-3">
+          <div v-if="!isMobile" class="col-md-3">
             <form v-on:submit.prevent="buyDice" class="mt-5">
               <table class="table shadow" style="border: solid 1px #dee2e6; color: #fff; text-align: left;">
                 <thead>
@@ -47,15 +47,15 @@
           </div>
           <div class="col-md-5">
             <div class="mt-5">
-              <div class="dice-wrap">
-                <img v-for="(item, index) in dicePoint" :key="index" :src="diceImg(item)" alt="" width="100px">
-                <!-- <img src="../assets/img/6.png" alt="" width="100px">
-                <img src="../assets/img/6.png" alt="" width="100px"> -->
-              </div>
-              <div class="game-over text-center" style="border-bottom: 2px solid #000; min-height: 40px; line-height: 80px; margin-bottom: 40px;">{{gameOver}}</div>
               <!-- 奖池信息 -->
               <h2 class="text-white text-center">Jackpot:</h2>
               <p class="text-center"><span class="display-4" style="letter-spacing: 0.5rem">{{jackpot}}</span>GPT</p>
+              <div class="dice-wrap">
+                <img v-for="(item, index) in dicePoint" :key="index" :src="diceImg(item)" alt="" width="100px" height="100">
+                <!-- <img src="../assets/img/6.png" alt="" width="100px">
+                  <img src="../assets/img/6.png" alt="" width="100px"> -->
+                </div>
+                <div class="game-over text-center" style=" min-height: 40px; line-height: 80px;">{{gameOver}}</div>
               <!-- 统计信息 -->
               <!-- <div class="row">
                 <div class="col-4">
@@ -138,23 +138,62 @@
             </b-form>
           </div>
         </div>
+        <div v-if="isMobile" class="col-md-3">
+          <form v-on:submit.prevent="buyDice" class="mt-5">
+            <table class="table shadow" style="border: solid 1px #dee2e6; color: #fff; text-align: left;">
+              <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <!-- <th scope="col">PR</th> -->
+                  <th scope="col">odds</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Big/Small</td>
+                  <td>1:1</td>
+                </tr>
+                <tr>
+                  <td>Odd/Even</td>
+                  <td>1:1</td>
+                </tr>
+                <tr>
+                  <td>Specific Triples</td>
+                  <td>1:150</td>
+                </tr>
+                <tr>
+                  <td>Any Triple</td>
+                  <td>1:24</td>
+                </tr>
+                <tr>
+                  <td>Dice Combinations</td>
+                  <td>1:5</td>
+                </tr>
+                <tr>
+                  <td>Specific Doubles</td>
+                  <td>1:8</td>
+                </tr>
+              </tbody>
+            </table>
+          </form>
+        </div>
         <p class="text-center display-4 text-white">Recent Wins</p>
-        <table class="table table-hover col-8" style="border: solid 1px #dee2e6;background: #fff; margin: 0 auto;">
+        <table class="table table-hover col-8" style="border: solid 1px #dee2e6;background: #fff; margin: 0 auto; width: 100%;">
           <thead>
             <tr>
-              <th scope="col">time</th>
+              <th v-if="!isMobile" scope="col">time</th>
               <th scope="col">category</th>
               <th scope="col">player</th>
-              <th scope="col">odds</th>
+              <th v-if="!isMobile" scope="col">odds</th>
               <th scope="col">reward</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="item in winList" :key="item.height">
-              <th scope="row">{{item.ts | changeTime}}</th>
+              <th v-if="!isMobile" scope="row">{{item.ts | changeTime}}</th>
               <td>{{categoryToString(item.category)}}</td>
               <td>{{item.user}}</td>
-              <td>{{item.odds}}</td>
+              <td v-if="!isMobile">{{item.odds}}</td>
               <td><span style="color: green">{{item.reward | nearToNum(2)}}</span> </td>
               <!-- <td>{{item.ts}}</td> -->
             </tr>
@@ -206,7 +245,7 @@ export default {
       gameOver: ''
     };
   },
-
+  props: ['isMobile'],
   created() {
     this.getLeftCount()
     this.getWinHistory()
@@ -442,5 +481,12 @@ export default {
   }
   .nav-link:hover {
     color: rgb(190, 197, 96);;
+  }
+  .container table td,
+  .container table th {
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

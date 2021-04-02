@@ -153,7 +153,7 @@ export default {
   mounted () {
     const getDomWidth = () => {
       const domWidth = document.documentElement.offsetWidth || document.body.offsetWidth
-      this.isMobile = domWidth <= 568 ? true : false
+      this.isMobile = domWidth <= 800 ? true : false
     }
     window.addEventListener('resize', getDomWidth)
     getDomWidth()

@@ -63,7 +63,15 @@ export default {
         if (list.length == 0) {
           return []
         } else {
-          const myList = list.slice().sort((a, b) => a.name.charCodeAt(0) - b.name.charCodeAt(0))
+          const myList = list.slice().sort((a, b) => {
+            if (a.name < b.name) {
+              return -1
+            }
+            if (a.name > b.name) {
+              return 1
+            }
+            return 0
+          })
           return myList
         }
       }
