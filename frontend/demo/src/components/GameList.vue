@@ -110,6 +110,10 @@ export default {
       }
     },
     goPlay (item) {
+      if (!window.walletConnection.isSignedIn()) {
+        alert('请登录')
+        return
+      }
       const origin = window.location.origin
       // window.open('https://www.baidu.com')
       window.location.href = origin + '/' + item.shopId

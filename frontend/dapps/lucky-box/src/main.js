@@ -1,16 +1,14 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router from './router'
 import { BootstrapVue } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import { initContract } from './utils/utils'
+import { initContract } from "./utils"
+import './assets/css/global.css'
 
 Vue.use(BootstrapVue)
 
-Vue.config.productionTip = false
-
-// filter --------------------------------->
+// filter------------------>
 Vue.filter('changeNear', function (num) {
   const ratio = '000000000000000000000000'
   if (num === '0') return '0'
@@ -26,16 +24,16 @@ Vue.filter('changeNear', function (num) {
   }
 })
 
-Vue.filter('nearToNum', function (num) {
-  return (num / 1e24).toFixed(2)
+Vue.filter('nearToNum', function (num, fix = 2) {
+  return (num / 1e24).toFixed(fix)
 })
 
-// ---------------------------------------->
+// ---------------------->
+Vue.config.productionTip = false
 
-initContract()
+window.nearInitPromise = initContract()
   .then(() => {
     new Vue({
-      router,
-      render: h => h(App)
-    }).$mount('#app')
+      render: h => h(App),
+    }).$mount("#app")
   })

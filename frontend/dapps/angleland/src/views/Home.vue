@@ -163,14 +163,13 @@ export default {
     // 双击成为土块拥有者
     async play (index) {
       console.log(123)
-      const info = await window.contract_platform.play({
+      await window.contract_platform.play({
         shop_id: 'angleland.testnet',
         amount: '1000000000000000000000000',
         op: index.toString()
       }, this.gas)
       this.getGptBalance()
       this.getEmployMaketList()
-      console.log(info)
     },
     // 获取赢家历史列表
     async getWinList () {
