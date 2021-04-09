@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="nav-item">
-          <button class="back">BACK</button>
+          <button class="back" @click="back">BACK</button>
         </div>
       </b-navbar>
     </header>
@@ -72,6 +72,10 @@ export default {
         console.error(err)
       }
     },
+    back () {
+      const origin = window.location.origin
+      window.location.href = origin
+    }
   },
   created () {
     if (window.walletConnection.isSignedIn()) {
@@ -166,6 +170,6 @@ export default {
         height: 32px;
         font-size: 14px;
       }
-    }
+  }
 }
 </style>

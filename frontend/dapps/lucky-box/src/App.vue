@@ -2,7 +2,7 @@
   <div id="app">
     <header>
       <img class="plat-logo" src="./assets/img/logo.png" alt="">
-      <b-navbar class="container" type="dark">
+      <b-navbar v-if="!isMobile" class="container" type="dark">
         <div class="col-6 nav-item">
           <div class="user">
             <div class="user-logo">
@@ -15,6 +15,23 @@
           </div>
         </div>
         <div class="col-6 nav-item">
+          <button class="back">BACK</button>
+        </div>
+      </b-navbar>
+      <b-navbar v-else class="container mobile-header" type="dark">
+        <div class="nav-item first"></div>
+        <div class="nav-item">
+          <div class="user">
+            <div class="user-logo">
+              <img src="./assets/img/icon-user.png" alt="">
+            </div>
+            <div class="user-info">
+              <div class="user-name">Wellcome, James !</div>
+              <div class="user-gpt">GPT: 690,000,00</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-item">
           <button class="back">BACK</button>
         </div>
       </b-navbar>
@@ -98,6 +115,31 @@ header {
       font-size: 14px;
       float: right;
     }
+  }
+  .mobile-header {
+      display: flex;
+      justify-content: space-between;
+      .first {
+        width: 50px;
+        height: 40px;
+      }
+      .user {
+        .user-logo {
+          width: 40px;
+          height: 40px;
+          margin-right: 5px;
+        }
+        .user-info {
+          .user-name {
+            font-size: 14px;
+          }
+        }
+      }
+      .back {
+        width: 50px;
+        height: 32px;
+        font-size: 14px;
+      }
   }
 }
 </style>

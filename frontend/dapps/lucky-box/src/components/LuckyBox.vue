@@ -42,16 +42,17 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 mt-4 mt-md-5 right-wrap"></div>
-      <div :class="rightStyle">
-        <div class="title">The total score will be 1 to 12</div>
-        <div class="info">
-          <p>Simple intoductions:</p>
-          <p>Ut placerat pharetra ipsum, in dignissim dui dapibus non. Suspendisse potenti. Phasellus volutpat nisi quis.</p>
-        </div>
-        <div class="button-wrap">
-          <button class="cancel">Cancel</button>
-          <button class="confirm">Confirm</button>
+      <div class="col-md-3 mt-4 mt-md-5 right-wrap">
+        <div :class="rightStyle">
+          <div class="title">The total score will be 1 to 12</div>
+          <div v-if="!isMobile" class="info">
+            <p>Simple intoductions:</p>
+            <p>Ut placerat pharetra ipsum, in dignissim dui dapibus non. Suspendisse potenti. Phasellus volutpat nisi quis.</p>
+          </div>
+          <div class="button-wrap">
+            <button class="cancel">Cancel</button>
+            <button class="confirm">Confirm</button>
+          </div>
         </div>
       </div>
     </div>
@@ -191,6 +192,11 @@ export default {
         }
       ],
       isAcitve: 1
+    }
+  },
+  computed: {
+    rightStyle () {
+      return this.isMobile ? 'mobile-right' : 'right'
     }
   },
   props: ['isMobile'],
@@ -345,44 +351,87 @@ export default {
         margin: 0;
       }
     }
-    .right {
-      border: 1px solid #f8ae1c;
-      background-color: rgba(0, 0, 0, 0.3);
-      padding: 20px;
-      position: relative;
-      .title {
-        margin-bottom: 40px;
-        font-size: 14px;
-      }
-      .info {
-        color: #d7af4b;
-        font-size: 12px;
-        p {
-          margin: 0;
-          line-height: 22px;
-        }
-      }
-      .button-wrap {
-        position: absolute;
-        width: 100%;
-        left: 0;
-        bottom: 20px;
+    .right-wrap {
+      padding: 0;
+      .right {
+        border: 1px solid #f8ae1c;
+        background-color: rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        position: relative;
+        height: 300px;
         display: flex;
-        justify-content: space-around;
-        button {
-          border: none;
-          border-radius: 3px;
-          background-color: red;
-          width: 100px;
-          height: 40px;
+        flex-wrap: wrap;
+        align-content: space-around;
+        .title {
+          /* margin-bottom: 40px; */
+          font-size: 14px;
         }
-        .cancel {
-          background-color: #fee8c1;
-          font-weight: 300;
+        .info {
+          color: #d7af4b;
+          font-size: 14px;
+          p {
+            margin: 0;
+            line-height: 22px;
+          }
         }
-        .confirm {
-          background-color: #f8ae1c;
+        .button-wrap {
+          /* position: absolute; */
+          width: 100%;
+          /* left: 0; */
+          /* bottom: 20px; */
+          display: flex;
+          justify-content: space-around;
+          button {
+            border: none;
+            border-radius: 3px;
+            background-color: red;
+            width: 100px;
+            height: 40px;
+          }
+          .cancel {
+            background-color: #fee8c1;
+            font-weight: 300;
+          }
+          .confirm {
+            background-color: #f8ae1c;
+          }
         }
+      }
+      .mobile-right {
+        padding: 0;
+        .title {
+          font-size: 14px;
+        }
+        .button-wrap {
+          padding-top: 30px;
+          padding-bottom: 10px;
+          width: 270px;
+          display: flex;
+          margin: 0 auto;
+          justify-content: space-around;
+          button {
+            border: none;
+            border-radius: 2px;
+            background-color: red;
+            width: 110px;
+            height: 45px;
+            font-size: 20px;
+          }
+          .cancel {
+            background-color: #fee8c1;
+            font-weight: 300;
+          }
+          .confirm {
+            background-color: #f8ae1c;
+          }
+        }
+      }
+      .win-info {
+        color: #f8ae1c;
+        font-size: 20px;
+        text-align: center;
+        line-height: 40px;
+        white-space: pre-wrap;
       }
     }
   }
