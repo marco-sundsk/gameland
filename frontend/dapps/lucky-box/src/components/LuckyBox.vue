@@ -42,7 +42,8 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3 right mt-4 mt-md-5">
+      <div class="col-md-3 mt-4 mt-md-5 right-wrap"></div>
+      <div :class="rightStyle">
         <div class="title">The total score will be 1 to 12</div>
         <div class="info">
           <p>Simple intoductions:</p>
@@ -54,94 +55,106 @@
         </div>
       </div>
     </div>
-    <h2>Recent Winners</h2>
-    <div class="win-table container">
-      <table align="center">
-        <thead>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-          <tr>
-            <td>Height</td>
-            <td>Username</td>
-            <td>Prize</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <h2>Recent Winners</h2>
+      </div>
+      <div class="col-md-3"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-3"></div>
+      <div class="col-md-6">
+        <div class="win-table container">
+          <table align="center">
+            <thead>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+              <tr>
+                <td>Height</td>
+                <td>Username</td>
+                <td>Prize</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-3"></div>
     </div>
   </div>
 </template>
@@ -378,13 +391,14 @@ export default {
     padding: 30px 0 10px;
   }
   .win-table {
-    max-width: 450px;
-    width: 90%;
+    width: 100%;
     height: 270px;
     overflow: auto;
     padding: 20px;
     border: 1px solid #f8ae1c;
+    margin: 0 auto;
     margin-bottom: 100px;
+    background-color: rgba(0, 0, 0, 0.2);
     table {
         margin: 0 auto;
         width: 100%;

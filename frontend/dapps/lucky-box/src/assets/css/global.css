@@ -1,6 +1,8 @@
 .main {
 	/* background-image: url('assets/satoshi-dice-background.png') , linear-gradient(to right, rgb(131, 96, 195), rgb(46, 191, 145));
 	background-size: cover; */
+	background: url('../img/bg-box.jpg') center center no-repeat;
+	background-size: 101% 101%;
 }
 .shadow {
 	background: rgba(0, 0, 0, 0.2);

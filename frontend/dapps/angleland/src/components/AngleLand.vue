@@ -46,7 +46,7 @@
             class="maket-item"
             :class="{ 'bg-yellow': getMaketColor(item) === 'yellow', 'bg-green': getMaketColor(item) === 'green', active: active === item }"
             @click="isActive(item)"
-            ></div>
+            >{{item}}</div>
         </div>
       </div>
       <div class="col-md-4 mt-4 mt-md-5 right-wrap">
@@ -317,10 +317,15 @@ export default {
         align-content: space-between;
         .maket-item {
           width: 15%;
-          height: 10%;
           border-radius: 3px;
           background: linear-gradient(to bottom, #fff5e1, #fee9c2);
           cursor: pointer;
+          color: #000;
+          display: flex;
+          font-size: 20px;
+          font-weight: 500;
+          justify-content: center;
+          align-items: center;
           /* border: 2px solid red; */
         }
       }

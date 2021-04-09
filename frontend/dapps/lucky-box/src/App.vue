@@ -19,7 +19,7 @@
         </div>
       </b-navbar>
     </header>
-    <main>
+    <main class="main">
       <lucky-box :isMobile="isMobile"></lucky-box>
     </main>
   </div>
