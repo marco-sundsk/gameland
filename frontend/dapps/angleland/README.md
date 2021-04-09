@@ -1,4 +1,4 @@
-# angleland
+# lucky-box
 
 ## Project setup
 ```
