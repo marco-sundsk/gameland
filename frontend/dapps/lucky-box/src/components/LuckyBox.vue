@@ -54,7 +54,7 @@
         </div>
         <p v-if="playInfo" class="playInfo" >已投盒子：{{playInfo.box_id}}</p>
         <div class="settle">
-          <button v-if="getGameState(contract.round_start_ts)" @click="settle">Settle</button>
+          <button v-if="getGameState(contract.round_start_ts, contract.round_period)" @click="settle">Settle</button>
         </div>
       </div>
     </div>
@@ -157,10 +157,10 @@ export default {
     },
     // 获取当前游戏时间
     getGameState () {
-      return (time) => {
+      return (time, period) => {
         if (time == '0') return false
         if (time) {
-          const endTime = Number(time) / 1e6 + 3600000
+          const endTime = Number(time) / 1e6 + (period * 1000)
           const currentTime = new Date().getTime()
           if (endTime <= currentTime) {
             return true
@@ -179,7 +179,7 @@ export default {
     async settle () {
       try {
         await this.getContract()
-        if (this.getGameState(this.contract.round_start_ts)) {
+        if (this.getGameState(this.contract.round_start_ts, this.contract.round_period)) {
           this.isLoading = true
           const settle = await window.contract_platform.settle({
             shop_id: 'luckybox.testnet',
@@ -297,7 +297,7 @@ export default {
     // 开始游戏
     async play () {
       try {
-        if (this.contract.round_start_ts != '0' && this.getGameState(this.contract.round_start_ts)) {
+        if (this.contract.round_start_ts != '0' && this.getGameState(this.contract.round_start_ts, this.contract.round_period)) {
           alert('本轮结束')
           return
         }
