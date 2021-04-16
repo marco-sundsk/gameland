@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="col-6 nav-item">
-          <button class="back">BACK</button>
+          <button class="back" @click="back">BACK</button>
         </div>
       </b-navbar>
       <b-navbar v-else class="container mobile-header" type="dark">

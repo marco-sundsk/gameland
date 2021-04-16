@@ -9,13 +9,13 @@
               <img src="./assets/img/icon-user.png" alt="">
             </div>
             <div class="user-info">
-              <div class="user-name">Wellcome, James !</div>
-              <div class="user-gpt">GPT: 690,000,00</div>
+              <div class="user-name">Wellcome, {{currentUser.accountId}} !</div>
+              <div class="user-gpt">GPT: {{gptBalance | nearToNum}}</div>
             </div>
           </div>
         </div>
         <div class="col-6 nav-item">
-          <button class="back">BACK</button>
+          <button class="back" @click="back">BACK</button>
         </div>
       </b-navbar>
       <b-navbar v-else class="container mobile-header" type="dark">
@@ -32,12 +32,12 @@
           </div>
         </div>
         <div class="nav-item">
-          <button class="back">BACK</button>
+          <button class="back" @click="back">BACK</button>
         </div>
       </b-navbar>
     </header>
     <main class="main">
-      <lucky-box :isMobile="isMobile"></lucky-box>
+      <lucky-box :isMobile="isMobile" :currentUser="currentUser" :gptBalance="gptBalance"></lucky-box>
     </main>
   </div>
 </template>
@@ -48,20 +48,49 @@ export default {
   name: 'App',
   data () {
     return {
-      isMobile: ''
+      isMobile: '',
+      currentUser: {
+        accountId: '',
+        account_id: '',
+        balance: ''
+      },
+      gptBalance: ''
     }
   },
   components: {
     LuckyBox
   },
+  methods: {
+    async getGptBalance () {
+      try {
+        const balance = await window.contract_gamecoin.ft_balance_of({
+          account_id: this.currentUser.account_id
+        })
+        this.gptBalance = balance
+      } catch (err) {
+        console.error(err)
+      }
+    },
+    back () {
+      const origin = window.location.origin
+      window.location.href = origin
+    }
+  },
   mounted () {
     let getDomWidth = () => {
       const domWidth = document.documentElement.offsetWidth || document.body.offsetWidth
-      console.log(domWidth)
       this.isMobile = domWidth <= 767 ? true : false
     }
     window.addEventListener('resize', getDomWidth)
     getDomWidth()
+  },
+  created () {
+    if (window.walletConnection.isSignedIn()) {
+      this.currentUser = window.currentUser
+      this.getGptBalance()
+    } else {
+      window.location.href = window.location.origin
+    }
   }
 }
 </script>

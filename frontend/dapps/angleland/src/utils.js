@@ -51,12 +51,6 @@ export async function initContract () {
     viewMethods: ['ft_balance_of', 'ft_total_supply', 'get_contract_info']
   })
 
-  // game contract
-  window.contract_game = await new Contract(window.walletConnection.account(), 'neardice.testnet', {
-    // View methods are read only. They don't modify the state, but usually return some value.
-    viewMethods: ['gl_metadata', 'gl_pub_state', 'gl_user_state', 'get_win_history', 'get_contract_info']
-  })
-
   window.contract_angleLand = await new Contract(window.walletConnection.account(), 'angleland.testnet', {
     viewMethods: ['get_maket_info', 'get_contract_info', 'get_win_history']
   })

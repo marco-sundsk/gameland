@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import { initContract } from "./utils"
 import './assets/css/global.css'
+import moment from 'moment'
 
 Vue.use(BootstrapVue)
 
@@ -26,6 +27,15 @@ Vue.filter('changeNear', function (num) {
 
 Vue.filter('nearToNum', function (num, fix = 2) {
   return (num / 1e24).toFixed(fix)
+})
+
+Vue.filter('changeTime', function (value) {
+  const ts = Number((value / 1e6).toFixed(0))
+  if (ts == 0) {
+    return '未开始'
+  } else {
+    return moment(ts).format('YYYY-MM-DD HH:mm:ss')
+  }
 })
 
 // ---------------------->
